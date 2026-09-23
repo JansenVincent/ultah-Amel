@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Birthday!</title>
+  <!-- Google Fonts: Comic Neue untuk kesan tulisan tangan santai -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,400;0,700;1,400&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Patrick Hand', 'Comic Neue', cursive, sans-serif;
+    }
+
+    body {
+      background: #eef2f7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #2b2b2b;
+    }
+
+    /* Container bergaya rasio layar ponsel */
+    .mobile-container {
+      width: 100%;
+      max-width: 420px;
+      height: 90vh;
+      max-height: 840px;
+      background: #ffffff;
+      border-radius: 28px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #e2e8f0;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 24px;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(20px);
+      transition: all 0.5s ease;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      line-height: 1.2;
+      margin-bottom: 24px;
+      font-weight: 700;
+    }
+
+    p {
+      font-size: 1.2rem;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    /* Elemen Lilin & Cupcake */
+    .cupcake-wrap {
+      position: relative;
+      margin: 20px 0 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .flame {
+      width: 16px;
+      height: 24px;
+      background: #ffaa00;
+      border-radius: 50% 50% 35% 35%;
+      box-shadow: 0 0 12px #ffc107, 0 0 20px #ff9800;
+      animation: flicker 0.6s infinite alternate ease-in-out;
+      transition: opacity 0.4s ease;
+      margin-bottom: -4px;
+      z-index: 2;
+    }
+
+    .flame.off {
+      opacity: 0;
+    }
+
+    @keyframes flicker {
+      from { transform: scale(1) rotate(-2deg); }
+      to { transform: scale(1.15) rotate(2deg); }
+    }
+
+    .cupcake-img {
+      width: 170px;
+      height: auto;
+      user-select: none;
+    }
+
+    /* Tombol Utama */
+    .btn {
+      background: #ffe680;
+      color: #2b2b2b;
+      border: 2px solid #2b2b2b;
+      border-radius: 30px;
+      padding: 12px 28px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 2px 4px 0 #2b2b2b;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0 #2b2b2b;
+    }
+
+    /* Slide Foto & Pesan */
+    .photo-card {
+      width: 220px;
+      height: 220px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 3px solid #2b2b2b;
+      box-shadow: 4px 6px 0 rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      background: #f7f7f7;
+    }
+
+    .photo-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .message-box {
+      background: #fff8e7;
+      border: 2px dashed #e0c57c;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 24px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="mobile-container">
+
+    <!-- Tampilan 1: Cover Lilin & Tiup (Sesuai Gambar) -->
+    <section class="slide active" id="slide-1">
+      <h1>Eh ada yg<br>ultah nih...</h1>
+      
+      <div class="cupcake-wrap">
+        <div class="flame" id="candleFlame"></div>
+        <img class="cupcake-img" src="https://illustrations.popsy.co/amber/cupcake.svg" alt="Birthday Cupcake" />
+      </div>
+
+      <p>"jangan cuma diliatin...<br>Tiup dong"</p>
+      <button class="btn" onclick="blowCandle()">✨ TIUPPP 💨</button>
+    </section>
+
+    <!-- Tampilan 2: Ucapan Selamat & Efek Konfeti -->
+    <section class="slide" id="slide-2">
+      <img src="https://illustrations.popsy.co/amber/celebration.svg" alt="Party" style="width: 180px; margin-bottom: 15px;" />
+      <h1>Yeay! Happy Birthday! 🎉</h1>
+      <p>Semoga di umur yang baru ini selalu diberi kesehatan, kelancaran rezeki, dan makin bahagia setiap harinya!</p>
+      <button class="btn" onclick="nextSlide(3)">Lanjut Dong 👉</button>
+    </section>
+
+    <!-- Tampilan 3: Kenangan / Foto Teman -->
+    <section class="slide" id="slide-3">
+      <h1>Flashback Dikit 📸</h1>
+      <div class="photo-card">
+        <!-- Ganti tautan foto ini dengan foto temanmu -->
+        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80" alt="Friend Memory" />
+      </div>
+      <p>Terima kasih udah jadi teman yang seru dan selalu ada sampai sekarang.</p>
+      <button class="btn" onclick="nextSlide(4)">Ada Pesan Nih 💌</button>
+    </section>
+
+    <!-- Tampilan 4: Pesan & Harapan Lengkap -->
+    <section class="slide" id="slide-4">
+      <h1>Harapan Buat Kamu ✨</h1>
+      <div class="message-box">
+        <p>Tetap jadi orang yang ceria dan positif ya! Apapun cita-cita dan rencana yang lagi diperjuangin tahun ini, semoga semuanya dipermudah.</p>
+        <p>Jangan lupa traktirannya ditunggu! 🍕🥳</p>
+      </div>
+      <button class="btn" onclick="nextSlide(5)">Satu Hal Lagi 🎁</button>
+    </section>
+
+    <!-- Tampilan 5: Penutup / Kontak WhatsApp -->
+    <section class="slide" id="slide-5">
+      <img src="https://illustrations.popsy.co/amber/surr-gift.svg" alt="Gift" style="width: 170px; margin-bottom: 15px;" />
+      <h1>Sekali Lagi,<br>Happy Birthday! 🎂</h1>
+      <p>Semoga harimu menyenangkan!</p>
+      <!-- Ganti nomor WhatsApp tujuan berikut jika diperlukan -->
+      <a class="btn" href="https://wa.me/?text=Makasih%20ucapannya!%20🥳" target="_blank">Kirim Makasih ke WA 💬</a>
+    </section>
+
+  </div>
+
+  <script>
+    function blowCandle() {
+      // Padamkan api
+      const flame = document.getElementById('candleFlame');
+      flame.classList.add('off');
+
+      // Tembakkan konfeti
+      confetti({
+        particleCount: 120,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+
+      // Pindah ke slide berikutnya setelah 1.2 detik
+      setTimeout(() => {
+        nextSlide(2);
+      }, 1200);
+    }
+
+    function nextSlide(slideNumber) {
+      document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+      const next = document.getElementById(`slide-${slideNumber}`);
+      if (next) {
+        next.classList.add('active');
+        if (slideNumber === 2) {
+          confetti({
+            particleCount: 80,
+            spread: 90,
+            origin: { y: 0.5 }
+          });
+        }
+      }
+    }
+  </script>
+</body>
+</html>
