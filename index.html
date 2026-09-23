@@ -210,29 +210,48 @@
       color: #333;
     }
 
-    /* Tombol Reset Putar Sesuai Gambar */
-    .reset-btn {
-      width: 48px;
-      height: 48px;
+    /* Tombol Terompet Pesta (Party Horn) */
+    .party-horn-btn {
+      width: 58px;
+      height: 58px;
       border-radius: 50%;
-      border: 2px solid #555;
-      background: #ffffff;
+      border: 2px solid #333;
+      background: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 1px 3px 0 #555;
-      margin: 15px auto 20px;
-      transition: all 0.2s ease;
+      box-shadow: 2px 4px 0 #333;
+      margin: 10px auto 20px;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
     }
 
-    .reset-btn:hover {
-      background: #f0f0f0;
+    .party-horn-btn:hover {
+      background: #fff8d6;
+      transform: scale(1.1) rotate(-6deg);
     }
 
-    .reset-btn:active {
-      transform: rotate(180deg) scale(0.9);
-      box-shadow: 0 0 0 #555;
+    .party-horn-btn:active {
+      transform: scale(0.9) rotate(8deg);
+      box-shadow: 0 0 0 #333;
+    }
+
+    .horn-icon-svg {
+      width: 32px;
+      height: 32px;
+      transition: transform 0.15s ease;
+    }
+
+    .party-horn-btn.tooting .horn-icon-svg {
+      animation: hornBlast 0.4s ease forwards;
+    }
+
+    @keyframes hornBlast {
+      0% { transform: scale(1) rotate(0deg); }
+      35% { transform: scale(1.25) rotate(-12deg); }
+      70% { transform: scale(1.1) rotate(6deg); }
+      100% { transform: scale(1) rotate(0deg); }
     }
 
     .modal-overlay {
@@ -490,10 +509,20 @@
 
       </div>
 
-      <!-- Tombol Refresh / Ulang (Sesuai Gambar 2) -->
-      <button class="reset-btn" title="Coba lagi" onclick="resetChoices()">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+      <!-- Tombol Terompet Pesta Pengganti Tombol Refresh -->
+      <button class="party-horn-btn" id="partyHornBtn" title="Tiup Terompet! 🎉" onclick="tootPartyHorn(event)">
+        <!-- SVG Terompet Pesta (Party Horn / Blower) -->
+        <svg class="horn-icon-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Corong Terompet -->
+          <path d="M14 26L33 13C34.5 12 37 13.2 36.8 15.2L35.2 27.5C35 29 33.2 30 31.8 29.5L14 26Z" fill="#ffb703" stroke="#2b2b2b" stroke-width="2.3" stroke-linejoin="round"/>
+          <ellipse cx="34.8" cy="21.5" rx="3" ry="7.5" fill="#fb8500" stroke="#2b2b2b" stroke-width="2.2"/>
+          <!-- Batang / Gagang Tiup -->
+          <path d="M14 23L7 20.5C5.8 20.1 4.5 21.2 4.9 22.4L7 28C7.5 29.2 9 29.8 10.2 29.2L14 27" fill="#8ecae6" stroke="#2b2b2b" stroke-width="2.2" stroke-linecap="round"/>
+          <!-- Lidah Gulung Terompet Pesta yang Membuka -->
+          <path d="M37 21C40 20 43 18 44 21C44.7 23 42 24.5 40 24" stroke="#ff006e" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Sparkle kecil -->
+          <circle cx="16" cy="14" r="1.5" fill="#ffd166"/>
+          <circle cx="28" cy="36" r="1.5" fill="#06d6a0"/>
         </svg>
       </button>
 
@@ -625,19 +654,86 @@
       }
     }
 
-    // Tombol Reset Pilihan
-    function resetChoices() {
+    // Aksi Tiup Terompet Pesta: Efek Audio Suara Terompet & Ledakan Konfeti
+    function tootPartyHorn(event) {
+      const btn = document.getElementById('partyHornBtn');
+      if (btn) {
+        btn.classList.add('tooting');
+        setTimeout(() => btn.classList.remove('tooting'), 450);
+      }
+
+      // Hitung koordinat klik untuk posisi asal semprotan konfeti
+      let xOrigin = 0.5;
+      let yOrigin = 0.58;
+      if (event && event.clientX) {
+        xOrigin = event.clientX / window.innerWidth;
+        yOrigin = event.clientY / window.innerHeight;
+      }
+
+      // Suara terompet pesta sintetis ceria (Web Audio API)
+      playHornSound();
+
+      // Semburan multi-burst konfeti warna-warni pesta
       confetti({
-        particleCount: 20,
-        spread: 40,
-        origin: { y: 0.6 }
+        particleCount: 65,
+        spread: 80,
+        angle: 60,
+        origin: { x: Math.max(0.1, xOrigin - 0.05), y: yOrigin },
+        colors: ['#ff006e', '#fb8500', '#ffbe0b', '#3a86ff', '#8338ec']
       });
-      // Efek goyang sederhana untuk feedback klik
-      const icons = document.querySelectorAll('.option-item');
-      icons.forEach(icon => {
-        icon.style.transform = 'scale(1.1)';
-        setTimeout(() => icon.style.transform = '', 200);
+
+      confetti({
+        particleCount: 65,
+        spread: 80,
+        angle: 120,
+        origin: { x: Math.min(0.9, xOrigin + 0.05), y: yOrigin },
+        colors: ['#06d6a0', '#118ab2', '#ffd166', '#ef476f', '#ff70a6']
       });
+
+      // Efek bintang/ribbon melayang tambahan
+      setTimeout(() => {
+        confetti({
+          particleCount: 35,
+          spread: 110,
+          origin: { x: xOrigin, y: yOrigin },
+          shapes: ['circle', 'square'],
+          scalar: 1.2
+        });
+      }, 120);
+    }
+
+    // Suara tiupan terompet khas pesta
+    function playHornSound() {
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'sawtooth';
+        // Glissando nada terompet naik sedikit (frekuensi 320Hz ke 460Hz)
+        const now = audioCtx.currentTime;
+        osc.frequency.setValueAtTime(320, now);
+        osc.frequency.exponentialRampToValueAtTime(460, now + 0.12);
+        osc.frequency.exponentialRampToValueAtTime(430, now + 0.28);
+
+        gain.gain.setValueAtTime(0.01, now);
+        gain.gain.linearRampToValueAtTime(0.18, now + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.33);
+      } catch (err) {
+        // Fallback jika audio dicegah oleh browser
+        console.warn('Audio not allowed yet', err);
+      }
     }
 
     // Konfeti Meriah
