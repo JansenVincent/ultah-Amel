@@ -3,47 +3,62 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Happy Birthday!</title>
-  <!-- Google Fonts: Comic Neue untuk kesan tulisan tangan santai -->
+  <title>Happy Birthday! 🎂</title>
+  
+  <!-- Google Fonts: Patrick Hand & Comic Neue untuk vibe tulisan tangan buku harian -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,400;0,700;1,400&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Patrick+Hand&family=Caveat:wght@600&display=swap" rel="stylesheet">
+  
   <!-- Canvas Confetti CDN -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <style>
+    :root {
+      --bg-canvas: #e9eef5;
+      --card-bg: #f8faff;
+      --text-dark: #37352f;
+      --accent-yellow: #ffe682;
+      --accent-brown: #5c3a21;
+      --border-dark: #2f2f2f;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
       font-family: 'Patrick Hand', 'Comic Neue', cursive, sans-serif;
     }
 
     body {
-      background: #eef2f7;
+      background: var(--bg-canvas);
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      color: #2b2b2b;
+      color: var(--text-dark);
+      padding: 12px;
     }
 
-    /* Container bergaya rasio layar ponsel */
-    .mobile-container {
+    /* Container bergaya bezel ponsel modern */
+    .app-screen {
       width: 100%;
-      max-width: 420px;
-      height: 90vh;
-      max-height: 840px;
-      background: #ffffff;
-      border-radius: 28px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+      max-width: 410px;
+      height: 88vh;
+      max-height: 820px;
+      background: var(--card-bg);
+      border-radius: 36px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.05);
       position: relative;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      border: 1px solid #e2e8f0;
+      border: 3px solid #333333;
     }
 
+    /* Slides container & transisi */
     .slide {
       position: absolute;
       inset: 0;
@@ -51,210 +66,678 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 30px 24px;
+      padding: 36px 24px;
       text-align: center;
       opacity: 0;
       pointer-events: none;
-      transform: translateY(20px);
-      transition: all 0.5s ease;
+      transform: translateY(18px) scale(0.98);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     .slide.active {
       opacity: 1;
       pointer-events: auto;
-      transform: translateY(0);
+      transform: translateY(0) scale(1);
     }
 
-    h1 {
-      font-size: 2.2rem;
-      line-height: 1.2;
-      margin-bottom: 24px;
-      font-weight: 700;
-    }
-
-    p {
-      font-size: 1.2rem;
-      color: #555;
+    h1.title {
+      font-size: 2.15rem;
+      line-height: 1.25;
       margin-bottom: 20px;
+      font-weight: 700;
+      color: #27272a;
     }
 
-    /* Elemen Lilin & Cupcake */
+    p.subtitle {
+      font-size: 1.2rem;
+      color: #52525b;
+      margin-bottom: 24px;
+      line-height: 1.4;
+    }
+
     .cupcake-wrap {
       position: relative;
-      margin: 20px 0 30px;
+      margin: 15px 0 24px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
     .flame {
-      width: 16px;
-      height: 24px;
-      background: #ffaa00;
+      width: 18px;
+      height: 28px;
+      background: linear-gradient(to top, #ff9800, #ffeb3b);
       border-radius: 50% 50% 35% 35%;
-      box-shadow: 0 0 12px #ffc107, 0 0 20px #ff9800;
-      animation: flicker 0.6s infinite alternate ease-in-out;
-      transition: opacity 0.4s ease;
-      margin-bottom: -4px;
-      z-index: 2;
+      box-shadow: 0 0 16px #ffc107, 0 0 28px #ff9800;
+      animation: flameWiggle 0.65s infinite alternate ease-in-out;
+      transition: all 0.35s ease;
+      margin-bottom: -6px;
+      z-index: 3;
     }
 
     .flame.off {
       opacity: 0;
+      transform: scale(0.2) translateY(-10px);
+      box-shadow: none;
     }
 
-    @keyframes flicker {
-      from { transform: scale(1) rotate(-2deg); }
-      to { transform: scale(1.15) rotate(2deg); }
+    @keyframes flameWiggle {
+      0% { transform: scale(1) rotate(-3deg); }
+      100% { transform: scale(1.15) rotate(4deg); }
     }
 
-    .cupcake-img {
-      width: 170px;
-      height: auto;
-      user-select: none;
+    .cupcake-svg {
+      width: 175px;
+      height: 175px;
+      filter: drop-shadow(0 6px 6px rgba(0,0,0,0.06));
     }
 
-    /* Tombol Utama */
-    .btn {
-      background: #ffe680;
-      color: #2b2b2b;
-      border: 2px solid #2b2b2b;
-      border-radius: 30px;
+    /* Tombol Utama Bergaya Hand-Drawn */
+    .btn-action {
+      background: var(--accent-yellow);
+      color: #27272a;
+      border: 2px solid var(--border-dark);
+      border-radius: 40px;
       padding: 12px 28px;
-      font-size: 1.15rem;
+      font-size: 1.2rem;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 2px 4px 0 #2b2b2b;
+      box-shadow: 2.5px 4px 0 var(--border-dark);
       transition: all 0.15s ease;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      gap: 10px;
       text-decoration: none;
     }
 
-    .btn:active {
-      transform: translate(2px, 2px);
-      box-shadow: 0 0 0 #2b2b2b;
+    .btn-action:hover {
+      background: #ffdf60;
     }
 
-    /* Slide Foto & Pesan */
-    .photo-card {
-      width: 220px;
-      height: 220px;
-      border-radius: 16px;
-      overflow: hidden;
-      border: 3px solid #2b2b2b;
-      box-shadow: 4px 6px 0 rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-      background: #f7f7f7;
+    .btn-action:active {
+      transform: translate(2px, 3px);
+      box-shadow: 0 0 0 var(--border-dark);
     }
 
-    .photo-card img {
+    .menu-options {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 18px;
       width: 100%;
-      height: 100%;
-      object-fit: cover;
+      margin: 30px 0 25px;
     }
 
-    .message-box {
-      background: #fff8e7;
-      border: 2px dashed #e0c57c;
-      border-radius: 16px;
+    .option-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      width: 90px;
+    }
+
+    .option-item:hover {
+      transform: translateY(-5px);
+    }
+
+    .option-item:active {
+      transform: scale(0.92);
+    }
+
+    .option-box {
+      width: 76px;
+      height: 76px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      border: 2px solid #333333;
+      box-shadow: 2px 4px 0 #333333;
+      margin-bottom: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .option-item:hover .option-box {
+      background: #fdfae5;
+    }
+
+    .option-label {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #333;
+    }
+
+    /* Tombol Reset Putar Sesuai Gambar */
+    .reset-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid #555;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 1px 3px 0 #555;
+      margin: 15px auto 20px;
+      transition: all 0.2s ease;
+    }
+
+    .reset-btn:hover {
+      background: #f0f0f0;
+    }
+
+    .reset-btn:active {
+      transform: rotate(180deg) scale(0.9);
+      box-shadow: 0 0 0 #555;
+    }
+
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(20, 20, 25, 0.55);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 20px;
-      margin-bottom: 24px;
-      max-height: 300px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 50;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background: #ffffff;
+      border-radius: 24px;
+      border: 3px solid #2f2f2f;
+      padding: 24px 20px;
+      width: 100%;
+      max-height: 85%;
       overflow-y: auto;
+      box-shadow: 4px 8px 0 rgba(0,0,0,0.18);
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      text-align: center;
+    }
+
+    .modal-overlay.show .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: #f1f1f1;
+      border: 2px solid #333;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    /* Konten Khusus Modal (Surat) */
+    .letter-paper {
+      background: #fffdf5;
+      border: 1.5px dashed #d5b97d;
+      border-radius: 14px;
+      padding: 18px;
+      text-align: left;
+      font-size: 1.15rem;
+      line-height: 1.5;
+      color: #3d3428;
+      margin: 15px 0 10px;
+    }
+
+    /* Konten Khusus Modal (Lagu) */
+    .vinyl-disc {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #333 40%, #111 60%, #333 80%);
+      border: 4px solid #111;
+      margin: 15px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: spin 4s linear infinite;
+      animation-play-state: paused;
+    }
+
+    .vinyl-disc.playing {
+      animation-play-state: running;
+    }
+
+    .vinyl-inner {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #ffb74d;
+      border: 2px solid #fff;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Konten Khusus Modal (Foto) */
+    .polaroid {
+      background: #ffffff;
+      padding: 10px 10px 22px;
+      border: 2px solid #333;
+      box-shadow: 3px 4px 0 rgba(0,0,0,0.1);
+      border-radius: 8px;
+      margin: 15px auto;
+      max-width: 240px;
+    }
+
+    .polaroid img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 4px;
+      display: block;
+    }
+
+    .polaroid-caption {
+      margin-top: 10px;
+      font-size: 1.1rem;
+      color: #444;
+      font-family: 'Caveat', cursive;
+      font-size: 1.35rem;
     }
   </style>
 </head>
 <body>
 
-  <div class="mobile-container">
+  <main class="app-screen">
 
-    <!-- Tampilan 1: Cover Lilin & Tiup (Sesuai Gambar) -->
+    <!-- SLIDE 1: Cover Lilin & Tiup (Sesuai Gambar 1) -->
     <section class="slide active" id="slide-1">
-      <h1>Eh ada yg<br>ultah nih...</h1>
+      <h1 class="title">Eh ada yg<br>ultah nih...</h1>
       
       <div class="cupcake-wrap">
+        <!-- Api lilin -->
         <div class="flame" id="candleFlame"></div>
-        <img class="cupcake-img" src="https://illustrations.popsy.co/amber/cupcake.svg" alt="Birthday Cupcake" />
+        
+        <!-- Ilustrasi Cupcake Hand-drawn SVG -->
+        <svg class="cupcake-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Batang Lilin -->
+          <rect x="94" y="42" width="12" height="42" rx="4" fill="#69db7c" stroke="#2b2b2b" stroke-width="3"/>
+          <path d="M96 52L104 57M96 66L104 71" stroke="#38d9a9" stroke-width="2.5" stroke-linecap="round"/>
+          
+          <!-- Krim Cupcake -->
+          <path d="M50 115C42 106 45 92 56 86C62 82 72 82 78 88C84 76 102 75 112 84C120 74 138 76 144 87C154 90 160 102 152 115C146 122 135 125 125 125H75C63 125 54 121 50 115Z" 
+                fill="#ffffff" stroke="#2b2b2b" stroke-width="3.5" stroke-linejoin="round"/>
+          
+          <!-- Hiasan Taburan / Sprinkles -->
+          <circle cx="70" cy="100" r="3" fill="#ff6b6b"/>
+          <circle cx="95" cy="92" r="3.5" fill="#4dabf7"/>
+          <circle cx="125" cy="98" r="3" fill="#ffd43b"/>
+          <circle cx="140" cy="108" r="3" fill="#69db7c"/>
+          <circle cx="82" cy="112" r="3" fill="#da77f2"/>
+          <circle cx="112" cy="114" r="3.5" fill="#ff922b"/>
+
+          <!-- Wadah Cupcake Berlipat -->
+          <path d="M60 124L72 176C73 180 77 183 82 183H118C123 183 127 180 128 176L140 124H60Z" 
+                fill="#e59866" stroke="#2b2b2b" stroke-width="3.5" stroke-linejoin="round"/>
+          <!-- Garis Lipatan Wadah -->
+          <path d="M78 126L85 180M95 126L97 181M105 126L103 181M122 126L115 180" 
+                stroke="#d35400" stroke-width="2.5" stroke-linecap="round"/>
+
+          <!-- Emoji Senyum Kecil di Kiri Kanan (Sesuai Gambar 1) -->
+          <text x="35" y="80" font-size="20">🥰</text>
+          <text x="148" y="75" font-size="20">🥳</text>
+          <text x="150" y="115" font-size="16">💖</text>
+        </svg>
       </div>
 
-      <p>"jangan cuma diliatin...<br>Tiup dong"</p>
-      <button class="btn" onclick="blowCandle()">✨ TIUPPP 💨</button>
+      <p class="subtitle">"Jangan cuma diliatin...<br>Tiup dong"</p>
+      <button class="btn-action" onclick="blowCandle()">
+        <span>💨</span> TIUPPP <span>✨</span>
+      </button>
     </section>
 
-    <!-- Tampilan 2: Ucapan Selamat & Efek Konfeti -->
+    <!-- SLIDE 2: Yeay! Happy Birthday! -->
     <section class="slide" id="slide-2">
-      <img src="https://illustrations.popsy.co/amber/celebration.svg" alt="Party" style="width: 180px; margin-bottom: 15px;" />
-      <h1>Yeay! Happy Birthday! 🎉</h1>
-      <p>Semoga di umur yang baru ini selalu diberi kesehatan, kelancaran rezeki, dan makin bahagia setiap harinya!</p>
-      <button class="btn" onclick="nextSlide(3)">Lanjut Dong 👉</button>
+      <!-- Ilustrasi Perayaan SVG -->
+      <svg width="130" height="130" viewBox="0 0 100 100" fill="none" style="margin-bottom: 12px;">
+        <circle cx="50" cy="50" r="42" fill="#fff9db" stroke="#2b2b2b" stroke-width="3"/>
+        <path d="M35 58C40 66 60 66 65 58" stroke="#2b2b2b" stroke-width="3.5" stroke-linecap="round"/>
+        <circle cx="36" cy="42" r="4.5" fill="#2b2b2b"/>
+        <circle cx="64" cy="42" r="4.5" fill="#2b2b2b"/>
+        <path d="M28 48C28 48 30 52 35 52C40 52 40 48 40 48" stroke="#ff8787" stroke-width="2" stroke-linecap="round"/>
+        <path d="M60 48C60 48 62 52 67 52C72 52 72 48 72 48" stroke="#ff8787" stroke-width="2" stroke-linecap="round"/>
+        <path d="M50 15L55 26H67L57 33L61 44L50 37L39 44L43 33L33 26H45L50 15Z" fill="#ffd43b" stroke="#2b2b2b" stroke-width="2"/>
+      </svg>
+
+      <h1 class="title">Yeay! Happy Birthday! 🎉</h1>
+      <p class="subtitle">Lilinnya udah ditiup! Semoga segala harapan baikmu segera terwujud yaa.</p>
+      
+      <button class="btn-action" onclick="goToSlide(3)">
+        Lanjut Dongg 👉
+      </button>
     </section>
 
-    <!-- Tampilan 3: Kenangan / Foto Teman -->
+    <!-- SLIDE 3: Menu Interaktif "Kamu mau pilih yang mana? :)" -->
     <section class="slide" id="slide-3">
-      <h1>Flashback Dikit 📸</h1>
-      <div class="photo-card">
-        <!-- Ganti tautan foto ini dengan foto temanmu -->
-        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80" alt="Friend Memory" />
+      <h1 class="title" style="font-size: 1.95rem; margin-bottom: 8px;">
+        Kamu mau pilih yang mana? :)
+      </h1>
+      <p class="subtitle" style="font-size: 1.05rem; margin-bottom: 15px;">
+        Pilih salah satu ikon di bawah ini yaa:
+      </p>
+
+      <!-- 3 Pilihan Ikon: Surat, Headphone, Kamera -->
+      <div class="menu-options">
+        
+        <!-- Pilihan 1: Surat -->
+        <div class="option-item" onclick="openModal('letter')">
+          <div class="option-box">
+            <!-- SVG Amplop Coklat Kemerahan Sesuai Gambar -->
+            <svg width="46" height="46" viewBox="0 0 48 48" fill="none">
+              <rect x="5" y="11" width="38" height="26" rx="4" fill="#a84343" stroke="#2b2b2b" stroke-width="2.5"/>
+              <path d="M6 13L24 27L42 13" stroke="#2b2b2b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M6 35L18 24M42 35L30 24" stroke="#2b2b2b" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="option-label">Surat</span>
+        </div>
+
+        <!-- Pilihan 2: Headphone -->
+        <div class="option-item" onclick="openModal('music')">
+          <div class="option-box">
+            <!-- SVG Headphone Abu-Ungu Sesuai Gambar -->
+            <svg width="46" height="46" viewBox="0 0 48 48" fill="none">
+              <path d="M12 25C12 18.37 17.37 13 24 13C30.63 13 36 18.37 36 25" stroke="#2b2b2b" stroke-width="3" stroke-linecap="round"/>
+              <rect x="8" y="24" width="8" height="15" rx="4" fill="#d0bfff" stroke="#2b2b2b" stroke-width="2.5"/>
+              <rect x="32" y="24" width="8" height="15" rx="4" fill="#d0bfff" stroke="#2b2b2b" stroke-width="2.5"/>
+              <path d="M16 26V37M32 26V37" stroke="#2b2b2b" stroke-width="2"/>
+            </svg>
+          </div>
+          <span class="option-label">Lagu</span>
+        </div>
+
+        <!-- Pilihan 3: Kamera -->
+        <div class="option-item" onclick="openModal('camera')">
+          <div class="option-box">
+            <!-- SVG Kamera Retro Hijau-Pink Sesuai Gambar -->
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <rect x="6" y="16" width="36" height="24" rx="6" fill="#a8d5ba" stroke="#2b2b2b" stroke-width="2.5"/>
+              <path d="M16 16L18 11H30L32 16H16Z" fill="#f4a8b7" stroke="#2b2b2b" stroke-width="2"/>
+              <circle cx="24" cy="28" r="7.5" fill="#ffffff" stroke="#2b2b2b" stroke-width="2.5"/>
+              <circle cx="24" cy="28" r="3.5" fill="#495057"/>
+              <circle cx="34" cy="21" r="2" fill="#e03131"/>
+            </svg>
+          </div>
+          <span class="option-label">Kenangan</span>
+        </div>
+
       </div>
-      <p>Terima kasih udah jadi teman yang seru dan selalu ada sampai sekarang.</p>
-      <button class="btn" onclick="nextSlide(4)">Ada Pesan Nih 💌</button>
+
+      <!-- Tombol Refresh / Ulang (Sesuai Gambar 2) -->
+      <button class="reset-btn" title="Coba lagi" onclick="resetChoices()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+        </svg>
+      </button>
+
+      <button class="btn-action" style="padding: 10px 22px; font-size: 1.1rem;" onclick="goToSlide(4)">
+        Lihat Pesan Terakhir 🎁
+      </button>
     </section>
 
-    <!-- Tampilan 4: Pesan & Harapan Lengkap -->
+    <!-- SLIDE 4: Penutup & Tautan WhatsApp -->
     <section class="slide" id="slide-4">
-      <h1>Harapan Buat Kamu ✨</h1>
-      <div class="message-box">
-        <p>Tetap jadi orang yang ceria dan positif ya! Apapun cita-cita dan rencana yang lagi diperjuangin tahun ini, semoga semuanya dipermudah.</p>
-        <p>Jangan lupa traktirannya ditunggu! 🍕🥳</p>
+      <div style="font-size: 3.5rem; margin-bottom: 10px;">🎁✨</div>
+      <h1 class="title">Sekali Lagi,<br>Selamat Ulang Tahun!</h1>
+      <p class="subtitle">
+        Semoga harimu penuh tawa, traktiran yang banyak, dan tahun ini jadi tahun terbaikmu!
+      </p>
+
+      <!-- URL WhatsApp (Bisa diganti dengan nomor tujuan langsung seperti https://wa.me/628123456789) -->
+      <a class="btn-action" href="https://wa.me/?text=Hai!%20Makasih%20banyak%20buat%20ucapan%20dan%20kado%20web-nya%20ya!%20🥳🎂" target="_blank">
+        <span>💬</span> Kirim Balasan ke WA
+      </a>
+
+      <button class="btn-action" style="margin-top: 14px; background: #fff; font-size: 0.95rem; padding: 8px 18px;" onclick="goToSlide(1)">
+        🔄 Ulangi Dari Awal
+      </button>
+    </section>
+
+    <!-- MODAL 1: SURAT (Pesan Panjang) -->
+    <div class="modal-overlay" id="modal-letter">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('letter')">✕</button>
+        <h2 style="font-size: 1.6rem; margin-bottom: 6px;">💌 Sepucuk Surat</h2>
+        <div class="letter-paper">
+          <p><strong>Hai teman baikku!</strong></p><br>
+          <p>Selamat bertambah usia ya! Nggak kerasa waktu cepat banget berlalu. Terima kasih udah selalu ada, selalu jadi teman cerita yang asik, dan selalu membawa tawa.</p><br>
+          <p>Semoga di usia yang baru ini, setiap mimpi dan cita-cita yang kamu simpan bisa terwujud satu per satu. Sehat terus, makin bahagia, dan jangan pernah berhenti tersenyum!</p>
+        </div>
+        <button class="btn-action" style="font-size: 1rem; padding: 8px 20px;" onclick="closeModal('letter')">Tutup Surat ✨</button>
       </div>
-      <button class="btn" onclick="nextSlide(5)">Satu Hal Lagi 🎁</button>
-    </section>
+    </div>
 
-    <!-- Tampilan 5: Penutup / Kontak WhatsApp -->
-    <section class="slide" id="slide-5">
-      <img src="https://illustrations.popsy.co/amber/surr-gift.svg" alt="Gift" style="width: 170px; margin-bottom: 15px;" />
-      <h1>Sekali Lagi,<br>Happy Birthday! 🎂</h1>
-      <p>Semoga harimu menyenangkan!</p>
-      <!-- Ganti nomor WhatsApp tujuan berikut jika diperlukan -->
-      <a class="btn" href="https://wa.me/?text=Makasih%20ucapannya!%20🥳" target="_blank">Kirim Makasih ke WA 💬</a>
-    </section>
+    <!-- MODAL 2: LAGU (Audio & Pemutar Interaktif) -->
+    <div class="modal-overlay" id="modal-music">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('music')">✕</button>
+        <h2 style="font-size: 1.6rem; margin-bottom: 4px;">🎧 Lagu Buat Kamu</h2>
+        <p style="font-size: 1.05rem; color: #666;">Dengarkan melodi ucapan ini ya!</p>
+        
+        <div class="vinyl-disc" id="vinylDisc">
+          <div class="vinyl-inner"></div>
+        </div>
 
-  </div>
+        <p id="musicStatus" style="font-size: 1.1rem; font-weight: bold; margin-bottom: 15px; color: #2b2b2b;">Tekan putar untuk dengar lagu 🎶</p>
+        <button class="btn-action" id="toggleMusicBtn" onclick="toggleTune()">
+          ▶ Putar Nada Ultah
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL 3: KAMERA (Foto Kenangan) -->
+    <div class="modal-overlay" id="modal-camera">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('camera')">✕</button>
+        <h2 style="font-size: 1.6rem; margin-bottom: 4px;">📸 Galeri Kenangan</h2>
+        <p style="font-size: 1rem; color: #666;">Momen yang nggak boleh dilupain!</p>
+        
+        <!-- Polaroid Frame: Kamu bisa mengganti URL src gambar ini dengan foto temanmu -->
+        <div class="polaroid">
+          <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80" alt="Kenangan Teman" />
+          <div class="polaroid-caption">Best moments with you! ✨</div>
+        </div>
+
+        <button class="btn-action" style="font-size: 1rem; padding: 8px 20px;" onclick="closeModal('camera')">Keren Banget 💖</button>
+      </div>
+    </div>
+
+  </main>
 
   <script>
+    // Navigasi Slide
+    function goToSlide(slideNum) {
+      document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById(`slide-${slideNum}`);
+      if (target) {
+        target.classList.add('active');
+        if (slideNum === 2) {
+          triggerCelebrationConfetti();
+        }
+      }
+    }
+
+    // Aksi Tiup Lilin
     function blowCandle() {
-      // Padamkan api
       const flame = document.getElementById('candleFlame');
       flame.classList.add('off');
 
-      // Tembakkan konfeti
+      // Mainkan konfeti
       confetti({
-        particleCount: 120,
+        particleCount: 90,
         spread: 70,
         origin: { y: 0.6 }
       });
 
-      // Pindah ke slide berikutnya setelah 1.2 detik
+      // Lanjut otomatis ke slide 2 setelah lilin padam
       setTimeout(() => {
-        nextSlide(2);
+        goToSlide(2);
       }, 1200);
     }
 
-    function nextSlide(slideNumber) {
-      document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
-      const next = document.getElementById(`slide-${slideNumber}`);
-      if (next) {
-        next.classList.add('active');
-        if (slideNumber === 2) {
-          confetti({
-            particleCount: 80,
-            spread: 90,
-            origin: { y: 0.5 }
-          });
-        }
+    // Buka & Tutup Modal
+    function openModal(type) {
+      const modal = document.getElementById(`modal-${type}`);
+      if (modal) {
+        modal.classList.add('show');
+        confetti({
+          particleCount: 30,
+          spread: 50,
+          origin: { y: 0.7 }
+        });
       }
+    }
+
+    function closeModal(type) {
+      const modal = document.getElementById(`modal-${type}`);
+      if (modal) {
+        modal.classList.remove('show');
+      }
+      if (type === 'music') {
+        stopTune();
+      }
+    }
+
+    // Tombol Reset Pilihan
+    function resetChoices() {
+      confetti({
+        particleCount: 20,
+        spread: 40,
+        origin: { y: 0.6 }
+      });
+      // Efek goyang sederhana untuk feedback klik
+      const icons = document.querySelectorAll('.option-item');
+      icons.forEach(icon => {
+        icon.style.transform = 'scale(1.1)';
+        setTimeout(() => icon.style.transform = '', 200);
+      });
+    }
+
+    // Konfeti Meriah
+    function triggerCelebrationConfetti() {
+      const count = 150;
+      const defaults = { origin: { y: 0.65 } };
+
+      function fire(particleRatio, opts) {
+        confetti(Object.assign({}, defaults, opts, {
+          particleCount: Math.floor(count * particleRatio)
+        }));
+      }
+
+      fire(0.25, { spread: 26, startVelocity: 55 });
+      fire(0.2, { spread: 60 });
+      fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+      fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+      fire(0.1, { spread: 120, startVelocity: 45 });
+    }
+
+    /* Web Audio API sederhana untuk melodi lagu ultah tanpa link audio eksternal */
+    let audioCtx = null;
+    let isPlayingTune = false;
+    let tuneTimeouts = [];
+
+    const notes = {
+      C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23,
+      G4: 392.00, A4: 440.00, B4: 493.88, C5: 523.25
+    };
+
+    // Nada lagu "Happy Birthday to You"
+    const melody = [
+      { note: 'C4', dur: 250 }, { note: 'C4', dur: 250 }, { note: 'D4', dur: 500 }, { note: 'C4', dur: 500 },
+      { note: 'F4', dur: 500 }, { note: 'E4', dur: 900 },
+      { note: 'C4', dur: 250 }, { note: 'C4', dur: 250 }, { note: 'D4', dur: 500 }, { note: 'C4', dur: 500 },
+      { note: 'G4', dur: 500 }, { note: 'F4', dur: 900 }
+    ];
+
+    function playNote(freq, duration) {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration / 1000);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration / 1000);
+    }
+
+    function toggleTune() {
+      if (isPlayingTune) {
+        stopTune();
+      } else {
+        startTune();
+      }
+    }
+
+    function startTune() {
+      isPlayingTune = true;
+      document.getElementById('vinylDisc').classList.add('playing');
+      document.getElementById('musicStatus').innerText = 'Memutar melodi ultah... 🎵';
+      document.getElementById('toggleMusicBtn').innerText = '⏸ Jeda Lagu';
+
+      let accumulatedTime = 0;
+      melody.forEach((item, index) => {
+        let t = setTimeout(() => {
+          if (isPlayingTune) {
+            playNote(notes[item.note], item.dur);
+          }
+        }, accumulatedTime);
+        tuneTimeouts.push(t);
+        accumulatedTime += item.dur + 90;
+      });
+
+      // Loop atau selesai
+      let finishTimeout = setTimeout(() => {
+        stopTune();
+      }, accumulatedTime + 500);
+      tuneTimeouts.push(finishTimeout);
+    }
+
+    function stopTune() {
+      isPlayingTune = false;
+      tuneTimeouts.forEach(t => clearTimeout(t));
+      tuneTimeouts = [];
+      const disc = document.getElementById('vinylDisc');
+      const status = document.getElementById('musicStatus');
+      const btn = document.getElementById('toggleMusicBtn');
+      if (disc) disc.classList.remove('playing');
+      if (status) status.innerText = 'Tekan putar untuk dengar lagu 🎶';
+      if (btn) btn.innerText = '▶ Putar Nada Ultah';
     }
   </script>
 </body>
