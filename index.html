@@ -588,24 +588,85 @@
       }
     }
 
-    /* Container Video Drive di Slide 4 */
-    .video-card-container {
+    /* Container Video Full Screen di Slide 4 */
+    #slide-4 {
+      padding: 0 !important;
+      position: absolute;
+      inset: 0;
       width: 100%;
-      border-radius: 18px;
-      border: 3px solid #2f2f2f;
+      height: 100%;
       overflow: hidden;
-      box-shadow: 3px 6px 0 rgba(0,0,0,0.12);
       background: #000;
-      margin: 10px 0 20px;
-      position: relative;
-      padding-top: 56.25%; /* 16:9 aspect ratio */
     }
 
-    .video-card-container iframe,
-    .video-card-container video {
+    .fullscreen-video-container {
       position: absolute;
-      top: 0;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      background: #000;
+    }
+
+    .fullscreen-video-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    .video-overlay-actions {
+      position: absolute;
+      bottom: 0;
       left: 0;
+      right: 0;
+      z-index: 10;
+      padding: 24px 16px 20px;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.45) 70%, transparent 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Floating BGM Toggle Button di Sudut Kanan Atas */
+    .bgm-toggle-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 50;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 2px solid #333;
+      box-shadow: 1px 3px 0 #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .bgm-toggle-btn.playing {
+      animation: pulseAlert 2s infinite ease-in-out;
+      background: #fff8d6;
+    }
+
+    /* Embed Player untuk Google Drive Audio di Modal */
+    .drive-audio-frame-wrap {
+      width: 100%;
+      height: 70px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid #333;
+      margin: 10px 0 14px;
+      background: #fdfdfd;
+      box-shadow: 2px 3px 0 #333;
+    }
+
+    .drive-audio-frame-wrap iframe {
       width: 100%;
       height: 100%;
       border: none;
@@ -615,13 +676,27 @@
 </head>
 <body>
 
-  <!-- Audio Background Music (Google Drive Direct Stream) -->
-  <audio id="bgmAudio" loop playsinline preload="auto" src="https://docs.google.com/uc?export=download&id=1HZNFxdt6j2PQUPT9aec5fEuDPXY2_qKu"></audio>
+  <!-- Audio Background Music (Dengan multi-fallback source: local file github & Google CDN) -->
+  <audio id="bgmAudio" loop playsinline preload="auto">
+    <!-- Rekomendasi GitHub Pages: simpan file mp3 sebagai 'bgm.mp3' di repo yang sama -->
+    <source src="bgm.mp3" type="audio/mpeg">
+    <source src="https://drive.usercontent.google.com/download?id=1HZNFxdt6j2PQUPT9aec5fEuDPXY2_qKu&export=download" type="audio/mpeg">
+    <source src="https://docs.google.com/uc?export=download&id=1HZNFxdt6j2PQUPT9aec5fEuDPXY2_qKu" type="audio/mpeg">
+  </audio>
 
-  <!-- Audio Lagu Buat Kamu (Google Drive Direct Stream) -->
-  <audio id="specialSongAudio" playsinline preload="auto" src="https://docs.google.com/uc?export=download&id=1LLt4JF--XqK_plHTe8kajTrn0JgvyJ3S"></audio>
+  <!-- Audio Lagu Buat Kamu (Lokal fallback) -->
+  <audio id="specialSongAudio" playsinline preload="auto">
+    <source src="lagu-ultah.mp3" type="audio/mpeg">
+    <source src="https://drive.usercontent.google.com/download?id=1LLt4JF--XqK_plHTe8kajTrn0JgvyJ3S&export=download" type="audio/mpeg">
+    <source src="https://docs.google.com/uc?export=download&id=1LLt4JF--XqK_plHTe8kajTrn0JgvyJ3S" type="audio/mpeg">
+  </audio>
 
   <main class="mobile-screen" id="appMain">
+
+    <!-- Tombol Audio Mute/Unmute Mengambang -->
+    <button class="bgm-toggle-btn" id="bgmToggleBtn" onclick="toggleBgmManual()" title="Nyalakan / Matikan Musik Latar">
+      <span id="bgmIcon">🎵</span>
+    </button>
 
     <!-- SLIDE 1: Cover Lilin & Peringatan Volume -->
     <section class="slide active" id="slide-1">
@@ -771,11 +846,11 @@
       </button>
     </section>
 
-    <!-- SLIDE 4: Penutup Video Drive & Tombol WhatsApp -->
+    <!-- SLIDE 4: Penutup Video Full Screen & Tombol Mengambang -->
     <section class="slide" id="slide-4">
       
-      <!-- Container Video Google Drive -->
-      <div class="video-card-container">
+      <!-- Video Google Drive Full Screen -->
+      <div class="fullscreen-video-container">
         <iframe 
           id="driveVideoPlayer"
           src="https://drive.google.com/file/d/1Gd3K5FDjpi3cA1Wfb-uXiJrCHfh94bVG/preview" 
@@ -784,14 +859,16 @@
         </iframe>
       </div>
 
-      <!-- 2 Tombol Tetap Sesuai Permintaan -->
-      <a class="btn-action" href="https://wa.me/6285157549442?text=Hai!%20Makasih%20banyak%20buat%20ucapan%20dan%20kado%20web-nya%20ya!%20🥳🎂" target="_blank">
-        <span>💬</span> Kirim Balasan ke WA
-      </a>
+      <!-- Action Overlay di Bawah Layar Video -->
+      <div class="video-overlay-actions">
+        <a class="btn-action" href="https://wa.me/?text=Hai!%20Makasih%20banyak%20buat%20ucapan%20dan%20kado%20web-nya%20ya!%20🥳🎂" target="_blank" style="width: 88%; max-width: 320px; font-size: 1.05rem;">
+          <span>💬</span> Kirim Balasan ke WA
+        </a>
 
-      <button class="btn-action" style="margin-top: 14px; background: #fff; font-size: 0.95rem; padding: 8px 18px;" onclick="goToSlide(1)">
-        🔄 Ulangi Dari Awal
-      </button>
+        <button class="btn-action" style="width: 88%; max-width: 320px; background: rgba(255,255,255,0.92); font-size: 0.95rem; padding: 9px 18px;" onclick="goToSlide(1)">
+          🔄 Ulangi Dari Awal
+        </button>
+      </div>
     </section>
 
     <!-- MODAL 1: SURAT -->
@@ -830,6 +907,15 @@
           </div>
           <div style="font-size: 1.1rem; font-weight: bold; color: #333;">Lagu Spesial Hari Ultah ✨</div>
           <div style="font-size: 0.95rem; color: #666; margin-top: 3px;">Putar & dengarkan sejenak</div>
+        </div>
+
+        <!-- Google Drive Native Audio Player Embed (Solusi ampuh anti-block Google 403) -->
+        <div class="drive-audio-frame-wrap" id="driveAudioWrap" style="display: none;">
+          <iframe 
+            id="driveAudioIframe"
+            src="" 
+            allow="autoplay">
+          </iframe>
         </div>
 
         <div id="musicCountdownBox" style="display: none;">
@@ -962,17 +1048,33 @@
        ========================================================== */
     const bgmAudio = document.getElementById('bgmAudio');
     const specialAudio = document.getElementById('specialSongAudio');
+    const bgmToggleBtn = document.getElementById('bgmToggleBtn');
+    const bgmIcon = document.getElementById('bgmIcon');
     let hasUserInteracted = false;
+    let isBgmManuallyPaused = false;
+
+    function updateBgmIconState(isPlaying) {
+      if (bgmIcon) bgmIcon.innerText = isPlaying ? '🔊' : '🔇';
+      if (bgmToggleBtn) {
+        if (isPlaying) {
+          bgmToggleBtn.classList.add('playing');
+        } else {
+          bgmToggleBtn.classList.remove('playing');
+        }
+      }
+    }
 
     // Memutar BGM secara otomatis saat halaman dibuka
     function tryPlayBgm() {
-      if (bgmAudio) {
+      if (bgmAudio && !isBgmManuallyPaused) {
         bgmAudio.volume = 0.55;
         const playPromise = bgmAudio.play();
         if (playPromise !== undefined) {
-          playPromise.catch(() => {
-            // Kebijakan autoplay browser memblokir audio sampai ada interaksi
-            console.log('Autoplay ditahan browser, menunggu interaksi pertama...');
+          playPromise.then(() => {
+            updateBgmIconState(true);
+          }).catch(() => {
+            // Kebijakan browser mengharuskan gestur interaksi pertama
+            updateBgmIconState(false);
           });
         }
       }
@@ -982,9 +1084,26 @@
     function startBgmIfAllowed() {
       if (!hasUserInteracted) {
         hasUserInteracted = true;
-        if (bgmAudio && bgmAudio.paused) {
-          bgmAudio.play().catch(e => console.warn(e));
+        if (bgmAudio && bgmAudio.paused && !isBgmManuallyPaused) {
+          bgmAudio.play()
+            .then(() => updateBgmIconState(true))
+            .catch(e => console.warn('BGM play on interaction:', e));
         }
+      }
+    }
+
+    function toggleBgmManual() {
+      if (!bgmAudio) return;
+      hasUserInteracted = true;
+      if (bgmAudio.paused) {
+        isBgmManuallyPaused = false;
+        bgmAudio.play()
+          .then(() => updateBgmIconState(true))
+          .catch(e => console.warn(e));
+      } else {
+        isBgmManuallyPaused = true;
+        bgmAudio.pause();
+        updateBgmIconState(false);
       }
     }
 
@@ -1004,9 +1123,10 @@
         if (slideNum === 2) {
           triggerCelebrationConfetti();
         }
-        // Di slide 4 (video penutup), jeda background music agar audio video terdengar jelas
+        // Di slide 4 (video penutup full-screen), jeda BGM agar audio video terdengar jelas
         if (slideNum === 4 && bgmAudio) {
           bgmAudio.pause();
+          updateBgmIconState(false);
         }
       }
     }
@@ -1076,11 +1196,18 @@
           specialAudio.pause();
           specialAudio.currentTime = 0;
         }
+
+        // Reset player iframe drive
+        const driveIframe = document.getElementById('driveAudioIframe');
+        if (driveIframe) driveIframe.src = "";
+
         const disc = document.getElementById('vinylDisc');
         if (disc) disc.classList.remove('spinning');
 
-        if (bgmAudio) {
-          bgmAudio.play().catch(e => console.warn(e));
+        if (bgmAudio && !isBgmManuallyPaused) {
+          bgmAudio.play()
+            .then(() => updateBgmIconState(true))
+            .catch(e => console.warn(e));
         }
         if (musicTimer) clearInterval(musicTimer);
       }
@@ -1091,12 +1218,21 @@
       // 1. Jeda Background Music
       if (bgmAudio) {
         bgmAudio.pause();
+        updateBgmIconState(false);
       }
 
-      // 2. Putar lagu dari Google Drive
+      // 2. Putar lagu: jalankan native iframe Google Drive agar anti error 403
+      const driveWrap = document.getElementById('driveAudioWrap');
+      const driveIframe = document.getElementById('driveAudioIframe');
+      if (driveWrap && driveIframe) {
+        driveWrap.style.display = 'block';
+        driveIframe.src = "https://drive.google.com/file/d/1LLt4JF--XqK_plHTe8kajTrn0JgvyJ3S/preview";
+      }
+
+      // Coba juga putar HTML5 audio jika file lokal ada di repo
       if (specialAudio) {
         specialAudio.currentTime = 0;
-        specialAudio.play().catch(e => console.warn('Gagal memutar audio:', e));
+        specialAudio.play().catch(e => console.info('Streaming via Google Drive Player iframe'));
       }
 
       // 3. Putar animasi piringan hitam
