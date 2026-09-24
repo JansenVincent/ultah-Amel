@@ -1182,7 +1182,7 @@
        4. MODAL LOGIC & KUNCI 1 MENIT LAGU BUAT KAMU
        ========================================================== */
     let musicTimer = null;
-    let secondsRemaining = 60;
+    let secondsRemaining = 30;
 
     function openModal(type) {
       forceStartBgm();
@@ -1271,13 +1271,13 @@
 
       // 6. Ubah teks status
       const status = document.getElementById('musicStatus');
-      status.innerText = "Dengerin dulu la 1 menit seengaknya, baru gw kasih tombol close 😜";
+      status.innerText = "Dengerin dulu la 30 detik seengaknya, baru gw kasih tombol close 😜";
 
-      // 7. Hitung mundur 60 detik
+      // 7. Hitung mundur 30 detik
       const countdownBox = document.getElementById('musicCountdownBox');
       const countdownDisplay = document.getElementById('countdownDisplay');
       countdownBox.style.display = 'block';
-      secondsRemaining = 60;
+      secondsRemaining = 30;
       countdownDisplay.innerText = `⏳ Menunggu: ${secondsRemaining} detik...`;
 
       if (musicTimer) clearInterval(musicTimer);
