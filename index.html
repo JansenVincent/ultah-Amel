@@ -659,7 +659,7 @@
 <body>
 
   <!-- Audio Background Music (Langsung dari file GitHub: bgm.mp3) -->
-  <audio id="bgmAudio" loop playsinline preload="auto">
+  <audio id="bgmAudio" autoplay loop playsinline preload="auto">
     <source src="bgm.mp3" type="audio/mpeg">
   </audio>
 
@@ -1036,7 +1036,7 @@
     if (bgmIcon) bgmIcon.innerText = '🔊';
     if (bgmToggleBtn) bgmToggleBtn.classList.add('playing');
 
-    // Memutar BGM secara otomatis saat halaman dibuka
+    // Memutar BGM secara otomatis sesegera mungkin saat halaman dibuka
     function tryPlayBgm() {
       if (bgmAudio && !isBgmManuallyPaused) {
         bgmAudio.volume = 0.8;
@@ -1045,24 +1045,21 @@
           playPromise.then(() => {
             updateBgmIconState(true);
           }).catch(() => {
-            // Kebijakan browser mengharuskan gestur interaksi pertama
-            // Ikon tetap diset standby aktif agar saat interaksi pertama langsung on
+            // Jika browser memblokir unmuted autoplay tanpa gestur,
+            // ikon tetap bersuara dan akan langsung diputar di tap/sentuhan pertama
             if (bgmIcon) bgmIcon.innerText = '🔊';
           });
         }
       }
     }
 
-    // Pastikan BGM berputar di tap pertama jika autoplay dicegah browser
-    function startBgmIfAllowed() {
-      if (!hasUserInteracted) {
-        hasUserInteracted = true;
-        if (bgmAudio && bgmAudio.paused && !isBgmManuallyPaused) {
-          bgmAudio.volume = 0.8;
-          bgmAudio.play()
-            .then(() => updateBgmIconState(true))
-            .catch(e => console.warn('BGM play on interaction:', e));
-        }
+    // Memaksa BGM langsung berputar begitu ada interaksi apapun di layar
+    function forceStartBgm() {
+      if (bgmAudio && bgmAudio.paused && !isBgmManuallyPaused) {
+        bgmAudio.volume = 0.8;
+        bgmAudio.play()
+          .then(() => updateBgmIconState(true))
+          .catch(() => {});
       }
     }
 
@@ -1081,10 +1078,17 @@
       }
     }
 
+    // Jalankan langsung tanpa menunggu seluruh aset selesai dimuat
+    tryPlayBgm();
     window.addEventListener('DOMContentLoaded', tryPlayBgm);
     window.addEventListener('load', tryPlayBgm);
-    document.body.addEventListener('click', startBgmIfAllowed, { once: true });
-    document.body.addEventListener('touchstart', startBgmIfAllowed, { once: true });
+
+    // Tangkap segala jenis interaksi sentuhan atau klik pertama di layar HP / Desktop
+    const triggerEvents = ['pointerdown', 'touchstart', 'touchend', 'click', 'keydown', 'scroll'];
+    triggerEvents.forEach(evtName => {
+      window.addEventListener(evtName, forceStartBgm, { passive: true });
+      document.addEventListener(evtName, forceStartBgm, { passive: true });
+    });
 
     /* ==========================================================
        3. LOGIKA SLIDE & TIUP LILIN + ASAP
@@ -1139,7 +1143,7 @@
     }
 
     function blowCandle() {
-      startBgmIfAllowed();
+      forceStartBgm();
       const flame = document.getElementById('candleFlame');
       const smoke = document.getElementById('smokeEffect');
 
@@ -1170,7 +1174,7 @@
     let secondsRemaining = 60;
 
     function openModal(type) {
-      startBgmIfAllowed();
+      forceStartBgm();
       const modal = document.getElementById(`modal-${type}`);
       if (modal) {
         modal.classList.add('show');
