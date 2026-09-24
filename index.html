@@ -403,26 +403,54 @@
       margin: 15px 0 10px;
     }
 
-    /* Modal Musik Spesial */
-    .yt-video-box {
+    /* Modal Musik Spesial (Styling Pemutar Vinyl Lucu) */
+    .music-player-card {
       width: 100%;
-      border-radius: 14px;
-      overflow: hidden;
+      border-radius: 18px;
       border: 2px solid #333;
       box-shadow: 2px 4px 0 #333;
       margin: 12px 0 15px;
-      background: #000;
-      position: relative;
-      padding-top: 56.25%; /* 16:9 ratio */
+      background: #fff9db;
+      padding: 20px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
-    .yt-video-box iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
+    .vinyl-disc {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #222 30%, #333 31%, #111 60%, #444 61%, #111 90%);
+      border: 3px solid #222;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      transition: transform 0.4s ease;
+    }
+
+    .vinyl-disc.spinning {
+      animation: spinVinyl 3.5s linear infinite;
+    }
+
+    @keyframes spinVinyl {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .vinyl-center {
+      width: 32px;
+      height: 32px;
+      background: #ffb703;
+      border-radius: 50%;
+      border: 2px solid #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
     }
 
     .countdown-pill {
@@ -583,24 +611,15 @@
       border: none;
     }
 
-    /* Hidden YouTube BGM Iframe */
-    #bgmPlayerWrapper {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      opacity: 0;
-      pointer-events: none;
-      left: -9999px;
-      top: -9999px;
-    }
   </style>
 </head>
 <body>
 
-  <!-- Hidden background YouTube audio player -->
-  <div id="bgmPlayerWrapper">
-    <div id="bgmPlayer"></div>
-  </div>
+  <!-- Audio Background Music (Google Drive Direct Stream) -->
+  <audio id="bgmAudio" loop playsinline preload="auto" src="https://docs.google.com/uc?export=download&id=1HZNFxdt6j2PQUPT9aec5fEuDPXY2_qKu"></audio>
+
+  <!-- Audio Lagu Buat Kamu (Google Drive Direct Stream) -->
+  <audio id="specialSongAudio" playsinline preload="auto" src="https://docs.google.com/uc?export=download&id=1LLt4JF--XqK_plHTe8kajTrn0JgvyJ3S"></audio>
 
   <main class="mobile-screen" id="appMain">
 
@@ -755,14 +774,12 @@
     <!-- SLIDE 4: Penutup Video Drive & Tombol WhatsApp -->
     <section class="slide" id="slide-4">
       
-      <!-- Container Video Drive Pengganti Teks Judul -->
+      <!-- Container Video Google Drive -->
       <div class="video-card-container">
-        <!-- CATATAN: Ganti link video Google Drive kamu di atribut 'src' di bawah. 
-             Format embed Google Drive: https://drive.google.com/file/d/FILE_ID/preview -->
         <iframe 
           id="driveVideoPlayer"
-          src="https://drive.google.com/file/d/1Gd3K5FDjpi3cA1Wfb-uXiJrCHfh94bVG/view?usp=drive_link" 
-          allow="autoplay; encrypted-media; picture-in-picture" 
+          src="https://drive.google.com/file/d/1Gd3K5FDjpi3cA1Wfb-uXiJrCHfh94bVG/preview" 
+          allow="autoplay; encrypted-media; fullscreen" 
           allowfullscreen>
         </iframe>
       </div>
@@ -791,7 +808,7 @@
       </div>
     </div>
 
-    <!-- MODAL 2: LAGU DARI YOUTUBE (tzkg9A6xG0E) & Kunci 1 Menit -->
+    <!-- MODAL 2: LAGU DARI GOOGLE DRIVE & Kunci 1 Menit -->
     <div class="modal-overlay" id="modal-music">
       <div class="modal-content">
         <!-- Tombol Close yang di-hide hingga 60 detik -->
@@ -804,9 +821,13 @@
           Dengerin melodi spesial ini ya! 🎶
         </p>
 
-        <!-- Wadah Iframe YouTube tzkg9A6xG0E -->
-        <div class="yt-video-box">
-          <div id="specialSongPlayer"></div>
+        <!-- Player Card Estetik dengan Vinyl Disc -->
+        <div class="music-player-card">
+          <div class="vinyl-disc" id="vinylDisc">
+            <div class="vinyl-center">🎵</div>
+          </div>
+          <div style="font-size: 1.1rem; font-weight: bold; color: #333;">Lagu Spesial Hari Ultah ✨</div>
+          <div style="font-size: 0.95rem; color: #666; margin-top: 3px;">Putar & dengarkan sejenak</div>
         </div>
 
         <div id="musicCountdownBox" style="display: none;">
@@ -860,19 +881,19 @@
 
   <script>
     /* ==========================================================
-       1. DATA GALERI KENANGAN (Bisa tambah/ganti URL sesukamu)
+       1. DATA GALERI KENANGAN
        ========================================================== */
     const memoryPhotos = [
       {
-        url: "https://drive.google.com/file/d/1NfogaMJG0sbUlD0jZLhBGUDHK79mE051/view?usp=drive_link",
-        caption: "Senyum terus yaa! ✨"
+        url: "https://lh3.googleusercontent.com/d/1xQldOlm_RJ8M-P7N68Vum4RjP2aFOFbo",
+        caption: "Momen terbaik bareng kamu ✨"
       },
       {
-        url: "https://drive.google.com/file/d/1brTiOBDYrPvoDxj_az0dZ1xl5Wg9jKnY/view?usp=drive_link",
-        caption: "Momen seru bareng kamu 🥳"
+        url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80",
+        caption: "Senyum terus yaa! 🥳"
       },
       {
-        url: "https://drive.google.com/file/d/1xQldOlm_RJ8M-P7N68Vum4RjP2aFOFbo/view?usp=drive_link",
+        url: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80",
         caption: "Semoga bahagia selalu 🍕🎈"
       }
     ];
@@ -931,65 +952,38 @@
     }, { passive: true });
 
     /* ==========================================================
-       2. YOUTUBE PLAYERS (BGM VVE01fDAMOE & Lagu tzkg9A6xG0E)
+       2. PENGATURAN AUDIO (BGM & LAGU SPESIAL GOOGLE DRIVE)
        ========================================================== */
-    let bgmPlayer = null;
-    let specialSongPlayer = null;
-    let isBgmReady = false;
+    const bgmAudio = document.getElementById('bgmAudio');
+    const specialAudio = document.getElementById('specialSongAudio');
     let hasUserInteracted = false;
 
-    // Dipanggil otomatis oleh YouTube Iframe API
-    function onYouTubeIframeAPIReady() {
-      // 1. Background Music Player (VVE01fDAMOE)
-      bgmPlayer = new YT.Player('bgmPlayer', {
-        height: '100',
-        width: '100',
-        videoId: 'VVE01fDAMOE',
-        playerVars: {
-          autoplay: 1,
-          loop: 1,
-          playlist: 'VVE01fDAMOE',
-          controls: 0,
-          disablekb: 1,
-          fs: 0,
-          playsinline: 1
-        },
-        events: {
-          'onReady': onBgmPlayerReady
-        }
-      });
-
-      // 2. Modal Special Song Player (tzkg9A6xG0E)
-      specialSongPlayer = new YT.Player('specialSongPlayer', {
-        height: '100%',
-        width: '100%',
-        videoId: 'tzkg9A6xG0E',
-        playerVars: {
-          autoplay: 0,
-          controls: 1,
-          rel: 0,
-          playsinline: 1
-        }
-      });
-    }
-
-    function onBgmPlayerReady(event) {
-      isBgmReady = true;
-      event.target.setVolume(55);
-      // Coba play jika autoplay diperbolehkan browser
-      event.target.playVideo();
-    }
-
-    // Memastikan BGM berputar begitu user berinteraksi pertama kali
-    function startBgmIfAllowed() {
-      if (!hasUserInteracted) {
-        hasUserInteracted = true;
-        if (bgmPlayer && bgmPlayer.playVideo) {
-          bgmPlayer.playVideo();
+    // Memutar BGM secara otomatis saat halaman dibuka
+    function tryPlayBgm() {
+      if (bgmAudio) {
+        bgmAudio.volume = 0.55;
+        const playPromise = bgmAudio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            // Kebijakan autoplay browser memblokir audio sampai ada interaksi
+            console.log('Autoplay ditahan browser, menunggu interaksi pertama...');
+          });
         }
       }
     }
 
+    // Pastikan BGM berputar di tap pertama jika autoplay dicegah browser
+    function startBgmIfAllowed() {
+      if (!hasUserInteracted) {
+        hasUserInteracted = true;
+        if (bgmAudio && bgmAudio.paused) {
+          bgmAudio.play().catch(e => console.warn(e));
+        }
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', tryPlayBgm);
+    window.addEventListener('load', tryPlayBgm);
     document.body.addEventListener('click', startBgmIfAllowed, { once: true });
     document.body.addEventListener('touchstart', startBgmIfAllowed, { once: true });
 
@@ -1003,6 +997,10 @@
         target.classList.add('active');
         if (slideNum === 2) {
           triggerCelebrationConfetti();
+        }
+        // Di slide 4 (video penutup), jeda background music agar audio video terdengar jelas
+        if (slideNum === 4 && bgmAudio) {
+          bgmAudio.pause();
         }
       }
     }
@@ -1047,7 +1045,6 @@
           renderCarousel();
         }
         if (type === 'music') {
-          // Reset UI musik bila dibuka kembali
           const closeBtn = document.getElementById('musicCloseBtn');
           const countdownBox = document.getElementById('musicCountdownBox');
           const playBtn = document.getElementById('playSpecialSongBtn');
@@ -1068,12 +1065,16 @@
       }
 
       if (type === 'music') {
-        // Hentikan lagu spesial dan lanjutkan kembali background music
-        if (specialSongPlayer && specialSongPlayer.pauseVideo) {
-          specialSongPlayer.pauseVideo();
+        // Hentikan lagu spesial dan jalankan kembali BGM
+        if (specialAudio) {
+          specialAudio.pause();
+          specialAudio.currentTime = 0;
         }
-        if (bgmPlayer && bgmPlayer.playVideo) {
-          bgmPlayer.playVideo();
+        const disc = document.getElementById('vinylDisc');
+        if (disc) disc.classList.remove('spinning');
+
+        if (bgmAudio) {
+          bgmAudio.play().catch(e => console.warn(e));
         }
         if (musicTimer) clearInterval(musicTimer);
       }
@@ -1082,28 +1083,33 @@
     // Fungsi Saat User Menekan "Putar Lagu Ultah"
     function playBirthdaySong() {
       // 1. Jeda Background Music
-      if (bgmPlayer && bgmPlayer.pauseVideo) {
-        bgmPlayer.pauseVideo();
+      if (bgmAudio) {
+        bgmAudio.pause();
       }
 
-      // 2. Putar lagu YouTube tzkg9A6xG0E
-      if (specialSongPlayer && specialSongPlayer.playVideo) {
-        specialSongPlayer.playVideo();
+      // 2. Putar lagu dari Google Drive
+      if (specialAudio) {
+        specialAudio.currentTime = 0;
+        specialAudio.play().catch(e => console.warn('Gagal memutar audio:', e));
       }
 
-      // 3. Sembunyikan tombol putar / jeda
+      // 3. Putar animasi piringan hitam
+      const disc = document.getElementById('vinylDisc');
+      if (disc) disc.classList.add('spinning');
+
+      // 4. Sembunyikan tombol putar
       const playBtn = document.getElementById('playSpecialSongBtn');
       if (playBtn) playBtn.style.display = 'none';
 
-      // 4. Pastikan tombol close tetap hidden
+      // 5. Pastikan tombol close disembunyikan
       const closeBtn = document.getElementById('musicCloseBtn');
       if (closeBtn) closeBtn.style.display = 'none';
 
-      // 5. Ubah wording status
+      // 6. Ubah teks status
       const status = document.getElementById('musicStatus');
       status.innerText = "Dengerin dulu la 1 menit seengaknya, baru gw kasih tombol close 😜";
 
-      // 6. Hitung mundur 60 detik
+      // 7. Hitung mundur 60 detik
       const countdownBox = document.getElementById('musicCountdownBox');
       const countdownDisplay = document.getElementById('countdownDisplay');
       countdownBox.style.display = 'block';
@@ -1117,7 +1123,6 @@
         if (secondsRemaining > 0) {
           countdownDisplay.innerText = `⏳ Menunggu: ${secondsRemaining} detik...`;
         } else {
-          // Setelah 1 menit selesai, tampilkan tombol close
           clearInterval(musicTimer);
           countdownDisplay.innerText = "✨ Tombol close sudah terbuka! Terima kasih udah dengerin ✨";
           countdownDisplay.style.backgroundColor = '#d3f9d8';
