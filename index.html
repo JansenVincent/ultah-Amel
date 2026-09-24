@@ -654,41 +654,18 @@
       background: #fff8d6;
     }
 
-    /* Embed Player untuk Google Drive Audio di Modal */
-    .drive-audio-frame-wrap {
-      width: 100%;
-      height: 70px;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 2px solid #333;
-      margin: 10px 0 14px;
-      background: #fdfdfd;
-      box-shadow: 2px 3px 0 #333;
-    }
-
-    .drive-audio-frame-wrap iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
   </style>
 </head>
 <body>
 
-  <!-- Audio Background Music (Dengan multi-fallback source: local file github & Google CDN) -->
+  <!-- Audio Background Music (Langsung dari file GitHub: bgm.mp3) -->
   <audio id="bgmAudio" loop playsinline preload="auto">
-    <!-- Rekomendasi GitHub Pages: simpan file mp3 sebagai 'bgm.mp3' di repo yang sama -->
     <source src="bgm.mp3" type="audio/mpeg">
-    <source src="https://drive.usercontent.google.com/download?id=1HZNFxdt6j2PQUPT9aec5fEuDPXY2_qKu&export=download" type="audio/mpeg">
-    <source src="https://docs.google.com/uc?export=download&id=1HZNFxdt6j2PQUPT9aec5fEuDPXY2_qKu" type="audio/mpeg">
   </audio>
 
-  <!-- Audio Lagu Buat Kamu (Lokal fallback) -->
+  <!-- Audio Lagu Buat Kamu (Langsung dari file GitHub: lagu-ultah.mp3) -->
   <audio id="specialSongAudio" playsinline preload="auto">
     <source src="lagu-ultah.mp3" type="audio/mpeg">
-    <source src="https://drive.usercontent.google.com/download?id=1LLt4JF--XqK_plHTe8kajTrn0JgvyJ3S&export=download" type="audio/mpeg">
-    <source src="https://docs.google.com/uc?export=download&id=1LLt4JF--XqK_plHTe8kajTrn0JgvyJ3S" type="audio/mpeg">
   </audio>
 
   <main class="mobile-screen" id="appMain">
@@ -905,17 +882,8 @@
           <div class="vinyl-disc" id="vinylDisc">
             <div class="vinyl-center">🎵</div>
           </div>
-          <div style="font-size: 1.1rem; font-weight: bold; color: #333;">Lagu Spesial Hari Ultah ✨</div>
-          <div style="font-size: 0.95rem; color: #666; margin-top: 3px;">Putar & dengarkan sejenak</div>
-        </div>
-
-        <!-- Google Drive Native Audio Player Embed (Solusi ampuh anti-block Google 403) -->
-        <div class="drive-audio-frame-wrap" id="driveAudioWrap" style="display: none;">
-          <iframe 
-            id="driveAudioIframe"
-            src="" 
-            allow="autoplay">
-          </iframe>
+          <div style="font-size: 1.1rem; font-weight: bold; color: #333;" id="songTitleDisplay">Lagu Spesial Hari Ultah ✨</div>
+          <div style="font-size: 0.95rem; color: #666; margin-top: 3px;" id="songSubDisplay">Putar & dengarkan sejenak</div>
         </div>
 
         <div id="musicCountdownBox" style="display: none;">
@@ -1191,15 +1159,11 @@
       }
 
       if (type === 'music') {
-        // Hentikan lagu spesial dan jalankan kembali BGM
+        // Hentikan lagu spesial GitHub dan jalankan kembali BGM
         if (specialAudio) {
           specialAudio.pause();
           specialAudio.currentTime = 0;
         }
-
-        // Reset player iframe drive
-        const driveIframe = document.getElementById('driveAudioIframe');
-        if (driveIframe) driveIframe.src = "";
 
         const disc = document.getElementById('vinylDisc');
         if (disc) disc.classList.remove('spinning');
@@ -1221,23 +1185,22 @@
         updateBgmIconState(false);
       }
 
-      // 2. Putar lagu: jalankan native iframe Google Drive agar anti error 403
-      const driveWrap = document.getElementById('driveAudioWrap');
-      const driveIframe = document.getElementById('driveAudioIframe');
-      if (driveWrap && driveIframe) {
-        driveWrap.style.display = 'block';
-        driveIframe.src = "https://drive.google.com/file/d/1LLt4JF--XqK_plHTe8kajTrn0JgvyJ3S/preview";
-      }
-
-      // Coba juga putar HTML5 audio jika file lokal ada di repo
+      // 2. Putar langsung audio lagu-ultah.mp3 dari GitHub
       if (specialAudio) {
         specialAudio.currentTime = 0;
-        specialAudio.play().catch(e => console.info('Streaming via Google Drive Player iframe'));
+        specialAudio.play().catch(e => {
+          console.warn('Audio play error:', e);
+          const status = document.getElementById('musicStatus');
+          if (status) status.innerText = "Pastikan file lagu-ultah.mp3 sudah di-upload ke repo GitHub ya! 🎶";
+        });
       }
 
       // 3. Putar animasi piringan hitam
       const disc = document.getElementById('vinylDisc');
       if (disc) disc.classList.add('spinning');
+
+      const songSub = document.getElementById('songSubDisplay');
+      if (songSub) songSub.innerText = "Sedang berputar... 🎶";
 
       // 4. Sembunyikan tombol putar
       const playBtn = document.getElementById('playSpecialSongBtn');
