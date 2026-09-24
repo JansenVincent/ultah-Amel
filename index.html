@@ -2,10 +2,11 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Lock mobile zoom-in & double-tap zoom -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Happy Birthday! 🎂</title>
   
-  <!-- Google Fonts: Patrick Hand & Comic Neue untuk vibe tulisan tangan buku harian -->
+  <!-- Google Fonts: Patrick Hand & Comic Neue untuk estetika doodle buku harian -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Patrick+Hand&family=Caveat:wght@600&display=swap" rel="stylesheet">
@@ -15,20 +16,24 @@
 
   <style>
     :root {
-      --bg-canvas: #e9eef5;
-      --card-bg: #f8faff;
-      --text-dark: #37352f;
+      --bg-canvas: #eef2f7;
+      --card-bg: #ffffff;
+      --text-dark: #2c2825;
       --accent-yellow: #ffe682;
-      --accent-brown: #5c3a21;
       --border-dark: #2f2f2f;
+      --soft-pink: #ffd6df;
+      --soft-blue: #d8ecf8;
     }
 
+    /* Kunci anti-zoom dan kenyamanan sentuhan mobile */
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       user-select: none;
-      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      touch-action: manipulation;
       font-family: 'Patrick Hand', 'Comic Neue', cursive, sans-serif;
     }
 
@@ -40,14 +45,16 @@
       min-height: 100vh;
       color: var(--text-dark);
       padding: 12px;
+      overflow-x: hidden;
+      touch-action: manipulation;
     }
 
-    /* Container bergaya bezel ponsel modern */
-    .app-screen {
+    /* Frame ponsel */
+    .mobile-screen {
       width: 100%;
-      max-width: 410px;
-      height: 88vh;
-      max-height: 820px;
+      max-width: 412px;
+      height: 90vh;
+      max-height: 840px;
       background: var(--card-bg);
       border-radius: 36px;
       box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -55,10 +62,10 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      border: 3px solid #333333;
+      border: 3px solid var(--border-dark);
     }
 
-    /* Slides container & transisi */
+    /* Slide Transisi */
     .slide {
       position: absolute;
       inset: 0;
@@ -66,7 +73,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 36px 24px;
+      padding: 30px 22px;
       text-align: center;
       opacity: 0;
       pointer-events: none;
@@ -83,7 +90,7 @@
     h1.title {
       font-size: 2.15rem;
       line-height: 1.25;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       font-weight: 700;
       color: #27272a;
     }
@@ -91,13 +98,34 @@
     p.subtitle {
       font-size: 1.2rem;
       color: #52525b;
-      margin-bottom: 24px;
-      line-height: 1.4;
+      margin-bottom: 20px;
+      line-height: 1.35;
     }
 
-    .cupcake-wrap {
+    /* Banner info volume audio */
+    .volume-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff8d6;
+      border: 2px dashed #e6b800;
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.95rem;
+      color: #73510d;
+      margin-bottom: 12px;
+      animation: pulseAlert 2.4s infinite ease-in-out;
+    }
+
+    @keyframes pulseAlert {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+
+    /* Lilin, Api, dan Animasi Asap */
+    .cupcake-container {
       position: relative;
-      margin: 15px 0 24px;
+      margin: 10px 0 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -117,7 +145,7 @@
 
     .flame.off {
       opacity: 0;
-      transform: scale(0.2) translateY(-10px);
+      transform: scale(0.1) translateY(-10px);
       box-shadow: none;
     }
 
@@ -126,13 +154,60 @@
       100% { transform: scale(1.15) rotate(4deg); }
     }
 
+    /* Partikel Asap Lilin */
+    .smoke-container {
+      position: absolute;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 80px;
+      pointer-events: none;
+      z-index: 10;
+      display: none;
+    }
+
+    .smoke-container.active {
+      display: block;
+    }
+
+    .smoke-puff {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(160, 160, 160, 0.7) 10%, rgba(200, 200, 200, 0) 70%);
+      opacity: 0;
+      filter: blur(2px);
+      animation: riseSmoke 1.8s ease-out forwards;
+    }
+
+    .smoke-1 { width: 22px; height: 22px; animation-delay: 0.05s; }
+    .smoke-2 { width: 30px; height: 30px; animation-delay: 0.25s; }
+    .smoke-3 { width: 36px; height: 36px; animation-delay: 0.45s; }
+
+    @keyframes riseSmoke {
+      0% {
+        opacity: 0.8;
+        transform: translate(-50%, 0) scale(0.6) rotate(0deg);
+      }
+      50% {
+        opacity: 0.5;
+        transform: translate(-30%, -40px) scale(1.1) rotate(15deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-70%, -85px) scale(1.7) rotate(-20deg);
+      }
+    }
+
     .cupcake-svg {
       width: 175px;
       height: 175px;
       filter: drop-shadow(0 6px 6px rgba(0,0,0,0.06));
     }
 
-    /* Tombol Utama Bergaya Hand-Drawn */
+    /* Tombol Tangan Bergaya Doodle */
     .btn-action {
       background: var(--accent-yellow);
       color: #27272a;
@@ -149,6 +224,7 @@
       justify-content: center;
       gap: 10px;
       text-decoration: none;
+      touch-action: manipulation;
     }
 
     .btn-action:hover {
@@ -160,13 +236,14 @@
       box-shadow: 0 0 0 var(--border-dark);
     }
 
+    /* 3 Ikon Pilihan Menu */
     .menu-options {
       display: flex;
       justify-content: center;
       align-items: flex-end;
       gap: 18px;
       width: 100%;
-      margin: 30px 0 25px;
+      margin: 24px 0 16px;
     }
 
     .option-item {
@@ -178,13 +255,8 @@
       width: 90px;
     }
 
-    .option-item:hover {
-      transform: translateY(-5px);
-    }
-
-    .option-item:active {
-      transform: scale(0.92);
-    }
+    .option-item:hover { transform: translateY(-5px); }
+    .option-item:active { transform: scale(0.92); }
 
     .option-box {
       width: 76px;
@@ -194,8 +266,8 @@
       align-items: center;
       justify-content: center;
       background: #ffffff;
-      border: 2px solid #333333;
-      box-shadow: 2px 4px 0 #333333;
+      border: 2px solid #333;
+      box-shadow: 2px 4px 0 #333;
       margin-bottom: 8px;
       transition: all 0.2s ease;
     }
@@ -210,19 +282,19 @@
       color: #333;
     }
 
-    /* Tombol Terompet Pesta (Party Horn) */
+    /* Tombol Terompet Pesta */
     .party-horn-btn {
       width: 58px;
       height: 58px;
       border-radius: 50%;
       border: 2px solid #333;
-      background: #fff;
+      background: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       box-shadow: 2px 4px 0 #333;
-      margin: 10px auto 20px;
+      margin: 10px auto 18px;
       transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
       position: relative;
     }
@@ -254,19 +326,20 @@
       100% { transform: scale(1) rotate(0deg); }
     }
 
+    /* Modal Overlay & Kotak Dialog */
     .modal-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(20, 20, 25, 0.55);
+      background: rgba(20, 20, 25, 0.6);
       backdrop-filter: blur(4px);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 18px;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
-      z-index: 50;
+      z-index: 60;
     }
 
     .modal-overlay.show {
@@ -276,14 +349,14 @@
 
     .modal-content {
       background: #ffffff;
-      border-radius: 24px;
+      border-radius: 26px;
       border: 3px solid #2f2f2f;
-      padding: 24px 20px;
+      padding: 24px 18px;
       width: 100%;
-      max-height: 85%;
+      max-height: 88%;
       overflow-y: auto;
       box-shadow: 4px 8px 0 rgba(0,0,0,0.18);
-      transform: scale(0.9);
+      transform: scale(0.92);
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       position: relative;
       text-align: center;
@@ -300,100 +373,257 @@
       background: #f1f1f1;
       border: 2px solid #333;
       border-radius: 50%;
-      width: 32px;
-      height: 32px;
+      width: 34px;
+      height: 34px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.1rem;
       cursor: pointer;
       font-weight: bold;
+      transition: transform 0.2s ease;
+      z-index: 10;
     }
 
-    /* Konten Khusus Modal (Surat) */
+    .modal-close:hover {
+      background: #ffe3e3;
+      transform: rotate(90deg);
+    }
+
+    /* Modal Surat */
     .letter-paper {
       background: #fffdf5;
       border: 1.5px dashed #d5b97d;
       border-radius: 14px;
-      padding: 18px;
+      padding: 16px;
       text-align: left;
-      font-size: 1.15rem;
+      font-size: 1.12rem;
       line-height: 1.5;
       color: #3d3428;
       margin: 15px 0 10px;
     }
 
-    /* Konten Khusus Modal (Lagu) */
-    .vinyl-disc {
-      width: 110px;
-      height: 110px;
-      border-radius: 50%;
-      background: radial-gradient(circle, #333 40%, #111 60%, #333 80%);
-      border: 4px solid #111;
-      margin: 15px auto;
+    /* Modal Musik Spesial */
+    .yt-video-box {
+      width: 100%;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 2px solid #333;
+      box-shadow: 2px 4px 0 #333;
+      margin: 12px 0 15px;
+      background: #000;
+      position: relative;
+      padding-top: 56.25%; /* 16:9 ratio */
+    }
+
+    .yt-video-box iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .countdown-pill {
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: #c92a2a;
+      background: #ffe3e3;
+      border: 1px solid #ffa8a8;
+      border-radius: 20px;
+      padding: 4px 12px;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+
+    /* Modal Galeri Kenangan Slider */
+    .carousel-container {
+      position: relative;
+      width: 100%;
+      max-width: 280px;
+      margin: 12px auto 14px;
+    }
+
+    .polaroid-slide {
+      background: #ffffff;
+      padding: 10px 10px 20px;
+      border: 2px solid #333;
+      box-shadow: 3px 5px 0 rgba(0,0,0,0.12);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .polaroid-img-wrap {
+      width: 100%;
+      height: 220px;
+      background: #eee;
+      border-radius: 6px;
+      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      animation: spin 4s linear infinite;
-      animation-play-state: paused;
     }
 
-    .vinyl-disc.playing {
-      animation-play-state: running;
-    }
-
-    .vinyl-inner {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: #ffb74d;
-      border: 2px solid #fff;
-    }
-
-    @keyframes spin {
-      100% { transform: rotate(360deg); }
-    }
-
-    /* Konten Khusus Modal (Foto) */
-    .polaroid {
-      background: #ffffff;
-      padding: 10px 10px 22px;
-      border: 2px solid #333;
-      box-shadow: 3px 4px 0 rgba(0,0,0,0.1);
-      border-radius: 8px;
-      margin: 15px auto;
-      max-width: 240px;
-    }
-
-    .polaroid img {
+    .polaroid-img-wrap img {
       width: 100%;
-      height: 200px;
+      height: 100%;
       object-fit: cover;
-      border-radius: 4px;
       display: block;
+      transition: opacity 0.3s ease;
     }
 
     .polaroid-caption {
       margin-top: 10px;
-      font-size: 1.1rem;
-      color: #444;
+      font-size: 1.25rem;
+      color: #333;
       font-family: 'Caveat', cursive;
-      font-size: 1.35rem;
+      min-height: 28px;
+    }
+
+    .slider-arrows {
+      display: flex;
+      justify-content: space-between;
+      position: absolute;
+      top: 40%;
+      width: 116%;
+      left: -8%;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    .slider-arrow-btn {
+      pointer-events: auto;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #ffe682;
+      border: 2px solid #333;
+      box-shadow: 1px 3px 0 #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    .slider-arrow-btn:active {
+      transform: translate(1px, 2px);
+      box-shadow: 0 0 0 #333;
+    }
+
+    .slider-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .slider-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #d0d7de;
+      border: 1px solid #333;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .slider-dot.active {
+      background: #ffb703;
+      transform: scale(1.3);
+    }
+
+    /* Floating Love Hearts Animation */
+    .floating-heart {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      user-select: none;
+      font-size: 24px;
+      animation: floatUpAndFade 1.6s ease-out forwards;
+    }
+
+    @keyframes floatUpAndFade {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) translate(0, 0) scale(0.6) rotate(0deg);
+      }
+      50% {
+        opacity: 0.95;
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(var(--scale, 1.4)) rotate(var(--rot, 25deg));
+      }
+    }
+
+    /* Container Video Drive di Slide 4 */
+    .video-card-container {
+      width: 100%;
+      border-radius: 18px;
+      border: 3px solid #2f2f2f;
+      overflow: hidden;
+      box-shadow: 3px 6px 0 rgba(0,0,0,0.12);
+      background: #000;
+      margin: 10px 0 20px;
+      position: relative;
+      padding-top: 56.25%; /* 16:9 aspect ratio */
+    }
+
+    .video-card-container iframe,
+    .video-card-container video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Hidden YouTube BGM Iframe */
+    #bgmPlayerWrapper {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+      left: -9999px;
+      top: -9999px;
     }
   </style>
 </head>
 <body>
 
-  <main class="app-screen">
+  <!-- Hidden background YouTube audio player -->
+  <div id="bgmPlayerWrapper">
+    <div id="bgmPlayer"></div>
+  </div>
 
-    <!-- SLIDE 1: Cover Lilin & Tiup (Sesuai Gambar 1) -->
+  <main class="mobile-screen" id="appMain">
+
+    <!-- SLIDE 1: Cover Lilin & Peringatan Volume -->
     <section class="slide active" id="slide-1">
       <h1 class="title">Eh ada yg<br>ultah nih...</h1>
       
-      <div class="cupcake-wrap">
+      <!-- Reminder Icon/Pill Volume Suara HP -->
+      <div class="volume-pill">
+        <span>🔊</span> Nyalain / gedein volume device kamu yaa! ✨
+      </div>
+
+      <div class="cupcake-container">
         <!-- Api lilin -->
         <div class="flame" id="candleFlame"></div>
         
+        <!-- Animasi Asap Setelah Ditiup -->
+        <div class="smoke-container" id="smokeEffect">
+          <div class="smoke-puff smoke-1"></div>
+          <div class="smoke-puff smoke-2"></div>
+          <div class="smoke-puff smoke-3"></div>
+        </div>
+
         <!-- Ilustrasi Cupcake Hand-drawn SVG -->
         <svg class="cupcake-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
           <!-- Batang Lilin -->
@@ -404,7 +634,7 @@
           <path d="M50 115C42 106 45 92 56 86C62 82 72 82 78 88C84 76 102 75 112 84C120 74 138 76 144 87C154 90 160 102 152 115C146 122 135 125 125 125H75C63 125 54 121 50 115Z" 
                 fill="#ffffff" stroke="#2b2b2b" stroke-width="3.5" stroke-linejoin="round"/>
           
-          <!-- Hiasan Taburan / Sprinkles -->
+          <!-- Hiasan Sprinkles -->
           <circle cx="70" cy="100" r="3" fill="#ff6b6b"/>
           <circle cx="95" cy="92" r="3.5" fill="#4dabf7"/>
           <circle cx="125" cy="98" r="3" fill="#ffd43b"/>
@@ -415,11 +645,10 @@
           <!-- Wadah Cupcake Berlipat -->
           <path d="M60 124L72 176C73 180 77 183 82 183H118C123 183 127 180 128 176L140 124H60Z" 
                 fill="#e59866" stroke="#2b2b2b" stroke-width="3.5" stroke-linejoin="round"/>
-          <!-- Garis Lipatan Wadah -->
           <path d="M78 126L85 180M95 126L97 181M105 126L103 181M122 126L115 180" 
                 stroke="#d35400" stroke-width="2.5" stroke-linecap="round"/>
 
-          <!-- Emoji Senyum Kecil di Kiri Kanan (Sesuai Gambar 1) -->
+          <!-- Emoji Doodle di Sisi -->
           <text x="35" y="80" font-size="20">🥰</text>
           <text x="148" y="75" font-size="20">🥳</text>
           <text x="150" y="115" font-size="16">💖</text>
@@ -427,14 +656,14 @@
       </div>
 
       <p class="subtitle">"Jangan cuma diliatin...<br>Tiup dong"</p>
-      <button class="btn-action" onclick="blowCandle()">
+      
+      <button class="btn-action" id="blowButton" onclick="blowCandle()">
         <span>💨</span> TIUPPP <span>✨</span>
       </button>
     </section>
 
     <!-- SLIDE 2: Yeay! Happy Birthday! -->
     <section class="slide" id="slide-2">
-      <!-- Ilustrasi Perayaan SVG -->
       <svg width="130" height="130" viewBox="0 0 100 100" fill="none" style="margin-bottom: 12px;">
         <circle cx="50" cy="50" r="42" fill="#fff9db" stroke="#2b2b2b" stroke-width="3"/>
         <path d="M35 58C40 66 60 66 65 58" stroke="#2b2b2b" stroke-width="3.5" stroke-linecap="round"/>
@@ -445,8 +674,8 @@
         <path d="M50 15L55 26H67L57 33L61 44L50 37L39 44L43 33L33 26H45L50 15Z" fill="#ffd43b" stroke="#2b2b2b" stroke-width="2"/>
       </svg>
 
-      <h1 class="title">Yeay! Happy Birthday! 🎉</h1>
-      <p class="subtitle">Lilinnya udah ditiup! Semoga segala harapan baikmu segera terwujud yaa.</p>
+      <h1 class="title">Yeay! Happy Birthday Amel! 🎉</h1>
+      <p class="subtitle">Semoga segala harapan dan impianmu terkabul yaa.</p>
       
       <button class="btn-action" onclick="goToSlide(3)">
         Lanjut Dongg 👉
@@ -455,20 +684,19 @@
 
     <!-- SLIDE 3: Menu Interaktif "Kamu mau pilih yang mana? :)" -->
     <section class="slide" id="slide-3">
-      <h1 class="title" style="font-size: 1.95rem; margin-bottom: 8px;">
+      <h1 class="title" style="font-size: 1.95rem; margin-bottom: 6px;">
         Kamu mau pilih yang mana? :)
       </h1>
-      <p class="subtitle" style="font-size: 1.05rem; margin-bottom: 15px;">
+      <p class="subtitle" style="font-size: 1.05rem; margin-bottom: 14px;">
         Pilih salah satu ikon di bawah ini yaa:
       </p>
 
-      <!-- 3 Pilihan Ikon: Surat, Headphone, Kamera -->
+      <!-- 3 Pilihan Ikon -->
       <div class="menu-options">
         
         <!-- Pilihan 1: Surat -->
         <div class="option-item" onclick="openModal('letter')">
           <div class="option-box">
-            <!-- SVG Amplop Coklat Kemerahan Sesuai Gambar -->
             <svg width="46" height="46" viewBox="0 0 48 48" fill="none">
               <rect x="5" y="11" width="38" height="26" rx="4" fill="#a84343" stroke="#2b2b2b" stroke-width="2.5"/>
               <path d="M6 13L24 27L42 13" stroke="#2b2b2b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -478,10 +706,9 @@
           <span class="option-label">Surat</span>
         </div>
 
-        <!-- Pilihan 2: Headphone -->
+        <!-- Pilihan 2: Headphone (Lagu) -->
         <div class="option-item" onclick="openModal('music')">
           <div class="option-box">
-            <!-- SVG Headphone Abu-Ungu Sesuai Gambar -->
             <svg width="46" height="46" viewBox="0 0 48 48" fill="none">
               <path d="M12 25C12 18.37 17.37 13 24 13C30.63 13 36 18.37 36 25" stroke="#2b2b2b" stroke-width="3" stroke-linecap="round"/>
               <rect x="8" y="24" width="8" height="15" rx="4" fill="#d0bfff" stroke="#2b2b2b" stroke-width="2.5"/>
@@ -492,10 +719,9 @@
           <span class="option-label">Lagu</span>
         </div>
 
-        <!-- Pilihan 3: Kamera -->
+        <!-- Pilihan 3: Kamera (Kenangan) -->
         <div class="option-item" onclick="openModal('camera')">
           <div class="option-box">
-            <!-- SVG Kamera Retro Hijau-Pink Sesuai Gambar -->
             <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
               <rect x="6" y="16" width="36" height="24" rx="6" fill="#a8d5ba" stroke="#2b2b2b" stroke-width="2.5"/>
               <path d="M16 16L18 11H30L32 16H16Z" fill="#f4a8b7" stroke="#2b2b2b" stroke-width="2"/>
@@ -509,18 +735,13 @@
 
       </div>
 
-      <!-- Tombol Terompet Pesta Pengganti Tombol Refresh -->
+      <!-- Tombol Terompet Pesta Pengganti Refresh -->
       <button class="party-horn-btn" id="partyHornBtn" title="Tiup Terompet! 🎉" onclick="tootPartyHorn(event)">
-        <!-- SVG Terompet Pesta (Party Horn / Blower) -->
         <svg class="horn-icon-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Corong Terompet -->
           <path d="M14 26L33 13C34.5 12 37 13.2 36.8 15.2L35.2 27.5C35 29 33.2 30 31.8 29.5L14 26Z" fill="#ffb703" stroke="#2b2b2b" stroke-width="2.3" stroke-linejoin="round"/>
           <ellipse cx="34.8" cy="21.5" rx="3" ry="7.5" fill="#fb8500" stroke="#2b2b2b" stroke-width="2.2"/>
-          <!-- Batang / Gagang Tiup -->
           <path d="M14 23L7 20.5C5.8 20.1 4.5 21.2 4.9 22.4L7 28C7.5 29.2 9 29.8 10.2 29.2L14 27" fill="#8ecae6" stroke="#2b2b2b" stroke-width="2.2" stroke-linecap="round"/>
-          <!-- Lidah Gulung Terompet Pesta yang Membuka -->
           <path d="M37 21C40 20 43 18 44 21C44.7 23 42 24.5 40 24" stroke="#ff006e" stroke-width="2.5" stroke-linecap="round"/>
-          <!-- Sparkle kecil -->
           <circle cx="16" cy="14" r="1.5" fill="#ffd166"/>
           <circle cx="28" cy="36" r="1.5" fill="#06d6a0"/>
         </svg>
@@ -531,16 +752,23 @@
       </button>
     </section>
 
-    <!-- SLIDE 4: Penutup & Tautan WhatsApp -->
+    <!-- SLIDE 4: Penutup Video Drive & Tombol WhatsApp -->
     <section class="slide" id="slide-4">
-      <div style="font-size: 3.5rem; margin-bottom: 10px;">🎁✨</div>
-      <h1 class="title">Sekali Lagi,<br>Selamat Ulang Tahun!</h1>
-      <p class="subtitle">
-        Semoga harimu penuh tawa, traktiran yang banyak, dan tahun ini jadi tahun terbaikmu!
-      </p>
+      
+      <!-- Container Video Drive Pengganti Teks Judul -->
+      <div class="video-card-container">
+        <!-- CATATAN: Ganti link video Google Drive kamu di atribut 'src' di bawah. 
+             Format embed Google Drive: https://drive.google.com/file/d/FILE_ID/preview -->
+        <iframe 
+          id="driveVideoPlayer"
+          src="https://drive.google.com/file/d/1Gd3K5FDjpi3cA1Wfb-uXiJrCHfh94bVG/view?usp=drive_link" 
+          allow="autoplay; encrypted-media; picture-in-picture" 
+          allowfullscreen>
+        </iframe>
+      </div>
 
-      <!-- URL WhatsApp (Bisa diganti dengan nomor tujuan langsung seperti https://wa.me/628123456789) -->
-      <a class="btn-action" href="https://wa.me/?text=Hai!%20Makasih%20banyak%20buat%20ucapan%20dan%20kado%20web-nya%20ya!%20🥳🎂" target="_blank">
+      <!-- 2 Tombol Tetap Sesuai Permintaan -->
+      <a class="btn-action" href="https://wa.me/085157549442?text=Hai!%20Makasih%20banyak%20buat%20ucapan%20dan%20kado%20web-nya%20ya!%20🥳🎂" target="_blank">
         <span>💬</span> Kirim Balasan ke WA
       </a>
 
@@ -549,59 +777,225 @@
       </button>
     </section>
 
-    <!-- MODAL 1: SURAT (Pesan Panjang) -->
+    <!-- MODAL 1: SURAT -->
     <div class="modal-overlay" id="modal-letter">
       <div class="modal-content">
         <button class="modal-close" onclick="closeModal('letter')">✕</button>
         <h2 style="font-size: 1.6rem; margin-bottom: 6px;">💌 Sepucuk Surat</h2>
         <div class="letter-paper">
           <p><strong>Hai teman baikku!</strong></p><br>
-          <p>Selamat bertambah usia ya! Nggak kerasa waktu cepat banget berlalu. Terima kasih udah selalu ada, selalu jadi teman cerita yang asik, dan selalu membawa tawa.</p><br>
-          <p>Semoga di usia yang baru ini, setiap mimpi dan cita-cita yang kamu simpan bisa terwujud satu per satu. Sehat terus, makin bahagia, dan jangan pernah berhenti tersenyum!</p>
+          <p>Selamat bertambah usia ya! Nggak kerasa waktu cepat banget berganti. Terima kasih udah selalu ada, selalu jadi teman cerita yang asik, dan selalu menghadirkan tawa.</p><br>
+          <p>Semoga di usia yang baru ini, setiap mimpi dan harapan yang kamu perjuangkan bisa tercapai satu per satu. Sehat selalu, bahagia terus, dan rezekinya makin lancar!</p>
         </div>
         <button class="btn-action" style="font-size: 1rem; padding: 8px 20px;" onclick="closeModal('letter')">Tutup Surat ✨</button>
       </div>
     </div>
 
-    <!-- MODAL 2: LAGU (Audio & Pemutar Interaktif) -->
+    <!-- MODAL 2: LAGU DARI YOUTUBE (tzkg9A6xG0E) & Kunci 1 Menit -->
     <div class="modal-overlay" id="modal-music">
       <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('music')">✕</button>
-        <h2 style="font-size: 1.6rem; margin-bottom: 4px;">🎧 Lagu Buat Kamu</h2>
-        <p style="font-size: 1.05rem; color: #666;">Dengarkan melodi ucapan ini ya!</p>
+        <!-- Tombol Close yang di-hide hingga 60 detik -->
+        <button class="modal-close" id="musicCloseBtn" style="display: none;" onclick="closeModal('music')">✕</button>
         
-        <div class="vinyl-disc" id="vinylDisc">
-          <div class="vinyl-inner"></div>
+        <h2 style="font-size: 1.6rem; margin-bottom: 4px;">🎧 Lagu Buat Kamu</h2>
+        
+        <!-- Status teks yang berubah sesuai instruksi -->
+        <p id="musicStatus" style="font-size: 1.05rem; color: #444; margin: 8px 0 10px; font-weight: bold; line-height: 1.35;">
+          Dengerin melodi spesial ini ya! 🎶
+        </p>
+
+        <!-- Wadah Iframe YouTube tzkg9A6xG0E -->
+        <div class="yt-video-box">
+          <div id="specialSongPlayer"></div>
         </div>
 
-        <p id="musicStatus" style="font-size: 1.1rem; font-weight: bold; margin-bottom: 15px; color: #2b2b2b;">Tekan putar untuk dengar lagu 🎶</p>
-        <button class="btn-action" id="toggleMusicBtn" onclick="toggleTune()">
-          ▶ Putar Nada Ultah
+        <div id="musicCountdownBox" style="display: none;">
+          <span class="countdown-pill" id="countdownDisplay">⏳ Menunggu: 60 detik...</span>
+        </div>
+
+        <!-- Tombol Putar Lagu Ultah -->
+        <button class="btn-action" id="playSpecialSongBtn" onclick="playBirthdaySong()">
+          ▶ Putar Lagu Ultah
         </button>
       </div>
     </div>
 
-    <!-- MODAL 3: KAMERA (Foto Kenangan) -->
+    <!-- MODAL 3: GALERI KENANGAN (Swipeable Slider & Love Confetti) -->
     <div class="modal-overlay" id="modal-camera">
       <div class="modal-content">
         <button class="modal-close" onclick="closeModal('camera')">✕</button>
-        <h2 style="font-size: 1.6rem; margin-bottom: 4px;">📸 Galeri Kenangan</h2>
-        <p style="font-size: 1rem; color: #666;">Momen yang nggak boleh dilupain!</p>
+        <h2 style="font-size: 1.6rem; margin-bottom: 2px;">📸 Galeri Kenangan</h2>
+        <p style="font-size: 1rem; color: #666;">Geser untuk lihat momen-momen seru!</p>
         
-        <!-- Polaroid Frame: Kamu bisa mengganti URL src gambar ini dengan foto temanmu -->
-        <div class="polaroid">
-          <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80" alt="Kenangan Teman" />
-          <div class="polaroid-caption">Best moments with you! ✨</div>
+        <!-- Carousel Slider Polaroid -->
+        <div class="carousel-container" id="carouselWrapper">
+          <div class="polaroid-slide">
+            <div class="polaroid-img-wrap">
+              <img id="carouselImg" src="" alt="Kenangan Teman" />
+            </div>
+            <div class="polaroid-caption" id="carouselCaption">Memories with you ✨</div>
+          </div>
+
+          <!-- Tombol Navigasi Kiri & Kanan -->
+          <div class="slider-arrows">
+            <button class="slider-arrow-btn" onclick="prevPhoto()">❮</button>
+            <button class="slider-arrow-btn" onclick="nextPhoto()">❯</button>
+          </div>
+
+          <!-- Indikator Dots -->
+          <div class="slider-dots" id="sliderDots"></div>
         </div>
 
-        <button class="btn-action" style="font-size: 1rem; padding: 8px 20px;" onclick="closeModal('camera')">Keren Banget 💖</button>
+        <!-- Tombol Keren Banget (Semburan Love / Hati tanpa menutup modal) -->
+        <button class="btn-action" id="loveBurstBtn" style="font-size: 1.05rem; padding: 10px 24px;" onclick="burstLoveHearts(event)">
+          Keren Banget! 💖
+        </button>
       </div>
     </div>
 
   </main>
 
+  <!-- YouTube IFrame Player API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+
   <script>
-    // Navigasi Slide
+    /* ==========================================================
+       1. DATA GALERI KENANGAN (Bisa tambah/ganti URL sesukamu)
+       ========================================================== */
+    const memoryPhotos = [
+      {
+        url: "https://drive.google.com/file/d/1NfogaMJG0sbUlD0jZLhBGUDHK79mE051/view?usp=drive_link",
+        caption: "Senyum terus yaa! ✨"
+      },
+      {
+        url: "https://drive.google.com/file/d/1brTiOBDYrPvoDxj_az0dZ1xl5Wg9jKnY/view?usp=drive_link",
+        caption: "Momen seru bareng kamu 🥳"
+      },
+      {
+        url: "https://drive.google.com/file/d/1xQldOlm_RJ8M-P7N68Vum4RjP2aFOFbo/view?usp=drive_link",
+        caption: "Semoga bahagia selalu 🍕🎈"
+      }
+    ];
+
+    let currentPhotoIdx = 0;
+
+    function renderCarousel() {
+      const img = document.getElementById('carouselImg');
+      const cap = document.getElementById('carouselCaption');
+      const dots = document.getElementById('sliderDots');
+
+      if (!memoryPhotos.length) return;
+
+      img.src = memoryPhotos[currentPhotoIdx].url;
+      cap.innerText = memoryPhotos[currentPhotoIdx].caption || "Best moments ✨";
+
+      // Render dots
+      dots.innerHTML = '';
+      memoryPhotos.forEach((_, idx) => {
+        const dot = document.createElement('div');
+        dot.className = `slider-dot ${idx === currentPhotoIdx ? 'active' : ''}`;
+        dot.onclick = () => {
+          currentPhotoIdx = idx;
+          renderCarousel();
+        };
+        dots.appendChild(dot);
+      });
+    }
+
+    function nextPhoto() {
+      currentPhotoIdx = (currentPhotoIdx + 1) % memoryPhotos.length;
+      renderCarousel();
+    }
+
+    function prevPhoto() {
+      currentPhotoIdx = (currentPhotoIdx - 1 + memoryPhotos.length) % memoryPhotos.length;
+      renderCarousel();
+    }
+
+    // Touch Swipe Gesture pada Carousel
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const carouselEl = document.getElementById('carouselWrapper');
+
+    carouselEl.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    carouselEl.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      if (touchStartX - touchEndX > 45) {
+        nextPhoto(); // Swipe left
+      } else if (touchEndX - touchStartX > 45) {
+        prevPhoto(); // Swipe right
+      }
+    }, { passive: true });
+
+    /* ==========================================================
+       2. YOUTUBE PLAYERS (BGM VVE01fDAMOE & Lagu tzkg9A6xG0E)
+       ========================================================== */
+    let bgmPlayer = null;
+    let specialSongPlayer = null;
+    let isBgmReady = false;
+    let hasUserInteracted = false;
+
+    // Dipanggil otomatis oleh YouTube Iframe API
+    function onYouTubeIframeAPIReady() {
+      // 1. Background Music Player (VVE01fDAMOE)
+      bgmPlayer = new YT.Player('bgmPlayer', {
+        height: '100',
+        width: '100',
+        videoId: 'VVE01fDAMOE',
+        playerVars: {
+          autoplay: 1,
+          loop: 1,
+          playlist: 'VVE01fDAMOE',
+          controls: 0,
+          disablekb: 1,
+          fs: 0,
+          playsinline: 1
+        },
+        events: {
+          'onReady': onBgmPlayerReady
+        }
+      });
+
+      // 2. Modal Special Song Player (tzkg9A6xG0E)
+      specialSongPlayer = new YT.Player('specialSongPlayer', {
+        height: '100%',
+        width: '100%',
+        videoId: 'tzkg9A6xG0E',
+        playerVars: {
+          autoplay: 0,
+          controls: 1,
+          rel: 0,
+          playsinline: 1
+        }
+      });
+    }
+
+    function onBgmPlayerReady(event) {
+      isBgmReady = true;
+      event.target.setVolume(55);
+      // Coba play jika autoplay diperbolehkan browser
+      event.target.playVideo();
+    }
+
+    // Memastikan BGM berputar begitu user berinteraksi pertama kali
+    function startBgmIfAllowed() {
+      if (!hasUserInteracted) {
+        hasUserInteracted = true;
+        if (bgmPlayer && bgmPlayer.playVideo) {
+          bgmPlayer.playVideo();
+        }
+      }
+    }
+
+    document.body.addEventListener('click', startBgmIfAllowed, { once: true });
+    document.body.addEventListener('touchstart', startBgmIfAllowed, { once: true });
+
+    /* ==========================================================
+       3. LOGIKA SLIDE & TIUP LILIN + ASAP
+       ========================================================== */
     function goToSlide(slideNum) {
       document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
       const target = document.getElementById(`slide-${slideNum}`);
@@ -613,34 +1007,57 @@
       }
     }
 
-    // Aksi Tiup Lilin
     function blowCandle() {
+      startBgmIfAllowed();
       const flame = document.getElementById('candleFlame');
+      const smoke = document.getElementById('smokeEffect');
+
+      // 1. Padamkan api
       flame.classList.add('off');
 
-      // Mainkan konfeti
+      // 2. Munculkan efek kepulan asap lilin
+      smoke.classList.add('active');
+
+      // 3. Mainkan konfeti ceria
       confetti({
         particleCount: 90,
         spread: 70,
         origin: { y: 0.6 }
       });
 
-      // Lanjut otomatis ke slide 2 setelah lilin padam
+      // 4. Lanjut ke slide 2 setelah 1.8 detik asap membubung
       setTimeout(() => {
+        smoke.classList.remove('active');
         goToSlide(2);
-      }, 1200);
+      }, 1800);
     }
 
-    // Buka & Tutup Modal
+    /* ==========================================================
+       4. MODAL LOGIC & KUNCI 1 MENIT LAGU BUAT KAMU
+       ========================================================== */
+    let musicTimer = null;
+    let secondsRemaining = 60;
+
     function openModal(type) {
+      startBgmIfAllowed();
       const modal = document.getElementById(`modal-${type}`);
       if (modal) {
         modal.classList.add('show');
-        confetti({
-          particleCount: 30,
-          spread: 50,
-          origin: { y: 0.7 }
-        });
+        if (type === 'camera') {
+          renderCarousel();
+        }
+        if (type === 'music') {
+          // Reset UI musik bila dibuka kembali
+          const closeBtn = document.getElementById('musicCloseBtn');
+          const countdownBox = document.getElementById('musicCountdownBox');
+          const playBtn = document.getElementById('playSpecialSongBtn');
+          const status = document.getElementById('musicStatus');
+          
+          if (closeBtn && secondsRemaining > 0) closeBtn.style.display = 'none';
+          if (playBtn) playBtn.style.display = 'inline-flex';
+          if (countdownBox) countdownBox.style.display = 'none';
+          if (status) status.innerText = 'Dengerin melodi spesial ini ya! 🎶';
+        }
       }
     }
 
@@ -649,12 +1066,131 @@
       if (modal) {
         modal.classList.remove('show');
       }
+
       if (type === 'music') {
-        stopTune();
+        // Hentikan lagu spesial dan lanjutkan kembali background music
+        if (specialSongPlayer && specialSongPlayer.pauseVideo) {
+          specialSongPlayer.pauseVideo();
+        }
+        if (bgmPlayer && bgmPlayer.playVideo) {
+          bgmPlayer.playVideo();
+        }
+        if (musicTimer) clearInterval(musicTimer);
       }
     }
 
-    // Aksi Tiup Terompet Pesta: Efek Audio Suara Terompet & Ledakan Konfeti
+    // Fungsi Saat User Menekan "Putar Lagu Ultah"
+    function playBirthdaySong() {
+      // 1. Jeda Background Music
+      if (bgmPlayer && bgmPlayer.pauseVideo) {
+        bgmPlayer.pauseVideo();
+      }
+
+      // 2. Putar lagu YouTube tzkg9A6xG0E
+      if (specialSongPlayer && specialSongPlayer.playVideo) {
+        specialSongPlayer.playVideo();
+      }
+
+      // 3. Sembunyikan tombol putar / jeda
+      const playBtn = document.getElementById('playSpecialSongBtn');
+      if (playBtn) playBtn.style.display = 'none';
+
+      // 4. Pastikan tombol close tetap hidden
+      const closeBtn = document.getElementById('musicCloseBtn');
+      if (closeBtn) closeBtn.style.display = 'none';
+
+      // 5. Ubah wording status
+      const status = document.getElementById('musicStatus');
+      status.innerText = "Dengerin dulu la 1 menit seengaknya, baru gw kasih tombol close 😜";
+
+      // 6. Hitung mundur 60 detik
+      const countdownBox = document.getElementById('musicCountdownBox');
+      const countdownDisplay = document.getElementById('countdownDisplay');
+      countdownBox.style.display = 'block';
+      secondsRemaining = 60;
+      countdownDisplay.innerText = `⏳ Menunggu: ${secondsRemaining} detik...`;
+
+      if (musicTimer) clearInterval(musicTimer);
+
+      musicTimer = setInterval(() => {
+        secondsRemaining--;
+        if (secondsRemaining > 0) {
+          countdownDisplay.innerText = `⏳ Menunggu: ${secondsRemaining} detik...`;
+        } else {
+          // Setelah 1 menit selesai, tampilkan tombol close
+          clearInterval(musicTimer);
+          countdownDisplay.innerText = "✨ Tombol close sudah terbuka! Terima kasih udah dengerin ✨";
+          countdownDisplay.style.backgroundColor = '#d3f9d8';
+          countdownDisplay.style.color = '#2b8a3e';
+          countdownDisplay.style.borderColor = '#8ce99a';
+
+          if (closeBtn) {
+            closeBtn.style.display = 'flex';
+            closeBtn.style.animation = 'pulseAlert 1s infinite alternate';
+          }
+        }
+      }, 1000);
+    }
+
+    /* ==========================================================
+       5. EFEK SEMBURAN HATI (LOVE HEARTS) PADA "KEREN BANGET"
+       ========================================================== */
+    function burstLoveHearts(event) {
+      // Dapatkan titik koordinat klik tombol atau tengah layar
+      const rect = event && event.currentTarget ? event.currentTarget.getBoundingClientRect() : null;
+      const originX = event && event.clientX ? event.clientX : (rect ? rect.left + rect.width / 2 : window.innerWidth / 2);
+      const originY = event && event.clientY ? event.clientY : (rect ? rect.top + rect.height / 2 : window.innerHeight * 0.7);
+
+      const hearts = ['💖', '💕', '❤️', '💗', '💓', '✨', '🥰'];
+      const count = 28;
+
+      // Buat semburan partikel hati melayang ke atas
+      for (let i = 0; i < count; i++) {
+        const heartEl = document.createElement('div');
+        heartEl.className = 'floating-heart';
+        heartEl.innerText = hearts[Math.floor(Math.random() * hearts.length)];
+        heartEl.style.left = `${originX}px`;
+        heartEl.style.top = `${originY}px`;
+
+        // Sudut acak mengarah ke atas kiri hingga kanan
+        const angle = Math.PI * (1.1 + Math.random() * 0.8);
+        const distance = 80 + Math.random() * 160;
+        const tx = Math.cos(angle) * distance + (Math.random() - 0.5) * 80;
+        const ty = Math.sin(angle) * distance - (40 + Math.random() * 80);
+        const rot = (Math.random() - 0.5) * 60;
+        const scale = 0.9 + Math.random() * 0.8;
+
+        heartEl.style.setProperty('--tx', `${tx}px`);
+        heartEl.style.setProperty('--ty', `${ty}px`);
+        heartEl.style.setProperty('--rot', `${rot}deg`);
+        heartEl.style.setProperty('--scale', scale);
+        heartEl.style.fontSize = `${18 + Math.random() * 16}px`;
+
+        document.body.appendChild(heartEl);
+        setTimeout(() => {
+          if (heartEl.parentNode) heartEl.parentNode.removeChild(heartEl);
+        }, 1600);
+      }
+
+      // Taburan konfeti sparkle warna pink/merah muda
+      if (typeof confetti === 'function') {
+        const xNorm = originX / window.innerWidth;
+        const yNorm = originY / window.innerHeight;
+        confetti({
+          particleCount: 25,
+          spread: 65,
+          origin: { x: xNorm, y: yNorm },
+          colors: ['#ff4d6d', '#ff758f', '#ff8fa3', '#c9184a', '#ffb3c1'],
+          scalar: 0.9,
+          ticks: 120,
+          startVelocity: 25
+        });
+      }
+    }
+
+    /* ==========================================================
+       6. TEROMPET PESTA (PARTY HORN) & KONFETI
+       ========================================================== */
     function tootPartyHorn(event) {
       const btn = document.getElementById('partyHornBtn');
       if (btn) {
@@ -662,7 +1198,6 @@
         setTimeout(() => btn.classList.remove('tooting'), 450);
       }
 
-      // Hitung koordinat klik untuk posisi asal semprotan konfeti
       let xOrigin = 0.5;
       let yOrigin = 0.58;
       if (event && event.clientX) {
@@ -670,10 +1205,8 @@
         yOrigin = event.clientY / window.innerHeight;
       }
 
-      // Suara terompet pesta sintetis ceria (Web Audio API)
       playHornSound();
 
-      // Semburan multi-burst konfeti warna-warni pesta
       confetti({
         particleCount: 65,
         spread: 80,
@@ -689,34 +1222,22 @@
         origin: { x: Math.min(0.9, xOrigin + 0.05), y: yOrigin },
         colors: ['#06d6a0', '#118ab2', '#ffd166', '#ef476f', '#ff70a6']
       });
-
-      // Efek bintang/ribbon melayang tambahan
-      setTimeout(() => {
-        confetti({
-          particleCount: 35,
-          spread: 110,
-          origin: { x: xOrigin, y: yOrigin },
-          shapes: ['circle', 'square'],
-          scalar: 1.2
-        });
-      }, 120);
     }
 
-    // Suara tiupan terompet khas pesta
+    let webAudioCtx = null;
     function playHornSound() {
       try {
-        if (!audioCtx) {
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (!webAudioCtx) {
+          webAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume();
+        if (webAudioCtx.state === 'suspended') {
+          webAudioCtx.resume();
         }
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
+        const osc = webAudioCtx.createOscillator();
+        const gain = webAudioCtx.createGain();
 
         osc.type = 'sawtooth';
-        // Glissando nada terompet naik sedikit (frekuensi 320Hz ke 460Hz)
-        const now = audioCtx.currentTime;
+        const now = webAudioCtx.currentTime;
         osc.frequency.setValueAtTime(320, now);
         osc.frequency.exponentialRampToValueAtTime(460, now + 0.12);
         osc.frequency.exponentialRampToValueAtTime(430, now + 0.28);
@@ -726,27 +1247,21 @@
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
 
         osc.connect(gain);
-        gain.connect(audioCtx.destination);
+        gain.connect(webAudioCtx.destination);
 
         osc.start(now);
         osc.stop(now + 0.33);
       } catch (err) {
-        // Fallback jika audio dicegah oleh browser
-        console.warn('Audio not allowed yet', err);
+        console.warn('Audio feedback error', err);
       }
     }
 
-    // Konfeti Meriah
     function triggerCelebrationConfetti() {
-      const count = 150;
+      const count = 140;
       const defaults = { origin: { y: 0.65 } };
-
-      function fire(particleRatio, opts) {
-        confetti(Object.assign({}, defaults, opts, {
-          particleCount: Math.floor(count * particleRatio)
-        }));
+      function fire(ratio, opts) {
+        confetti(Object.assign({}, defaults, opts, { particleCount: Math.floor(count * ratio) }));
       }
-
       fire(0.25, { spread: 26, startVelocity: 55 });
       fire(0.2, { spread: 60 });
       fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
@@ -754,87 +1269,10 @@
       fire(0.1, { spread: 120, startVelocity: 45 });
     }
 
-    /* Web Audio API sederhana untuk melodi lagu ultah tanpa link audio eksternal */
-    let audioCtx = null;
-    let isPlayingTune = false;
-    let tuneTimeouts = [];
-
-    const notes = {
-      C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23,
-      G4: 392.00, A4: 440.00, B4: 493.88, C5: 523.25
-    };
-
-    // Nada lagu "Happy Birthday to You"
-    const melody = [
-      { note: 'C4', dur: 250 }, { note: 'C4', dur: 250 }, { note: 'D4', dur: 500 }, { note: 'C4', dur: 500 },
-      { note: 'F4', dur: 500 }, { note: 'E4', dur: 900 },
-      { note: 'C4', dur: 250 }, { note: 'C4', dur: 250 }, { note: 'D4', dur: 500 }, { note: 'C4', dur: 500 },
-      { note: 'G4', dur: 500 }, { note: 'F4', dur: 900 }
-    ];
-
-    function playNote(freq, duration) {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-
-      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration / 1000);
-
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-
-      osc.start();
-      osc.stop(audioCtx.currentTime + duration / 1000);
-    }
-
-    function toggleTune() {
-      if (isPlayingTune) {
-        stopTune();
-      } else {
-        startTune();
-      }
-    }
-
-    function startTune() {
-      isPlayingTune = true;
-      document.getElementById('vinylDisc').classList.add('playing');
-      document.getElementById('musicStatus').innerText = 'Memutar melodi ultah... 🎵';
-      document.getElementById('toggleMusicBtn').innerText = '⏸ Jeda Lagu';
-
-      let accumulatedTime = 0;
-      melody.forEach((item, index) => {
-        let t = setTimeout(() => {
-          if (isPlayingTune) {
-            playNote(notes[item.note], item.dur);
-          }
-        }, accumulatedTime);
-        tuneTimeouts.push(t);
-        accumulatedTime += item.dur + 90;
-      });
-
-      // Loop atau selesai
-      let finishTimeout = setTimeout(() => {
-        stopTune();
-      }, accumulatedTime + 500);
-      tuneTimeouts.push(finishTimeout);
-    }
-
-    function stopTune() {
-      isPlayingTune = false;
-      tuneTimeouts.forEach(t => clearTimeout(t));
-      tuneTimeouts = [];
-      const disc = document.getElementById('vinylDisc');
-      const status = document.getElementById('musicStatus');
-      const btn = document.getElementById('toggleMusicBtn');
-      if (disc) disc.classList.remove('playing');
-      if (status) status.innerText = 'Tekan putar untuk dengar lagu 🎶';
-      if (btn) btn.innerText = '▶ Putar Nada Ultah';
-    }
+    // Inisialisasi awal galeri saat halaman dimuat
+    window.addEventListener('DOMContentLoaded', () => {
+      renderCarousel();
+    });
   </script>
 </body>
 </html>
