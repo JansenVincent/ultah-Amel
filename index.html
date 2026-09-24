@@ -670,9 +670,9 @@
 
   <main class="mobile-screen" id="appMain">
 
-    <!-- Tombol Audio Mute/Unmute Mengambang -->
-    <button class="bgm-toggle-btn" id="bgmToggleBtn" onclick="toggleBgmManual()" title="Nyalakan / Matikan Musik Latar">
-      <span id="bgmIcon">🎵</span>
+    <!-- Tombol Audio Mute/Unmute Mengambang (Default: ON / Bersuara) -->
+    <button class="bgm-toggle-btn playing" id="bgmToggleBtn" onclick="toggleBgmManual()" title="Nyalakan / Matikan Musik Latar">
+      <span id="bgmIcon">🔊</span>
     </button>
 
     <!-- SLIDE 1: Cover Lilin & Peringatan Volume -->
@@ -842,7 +842,7 @@
           <span>💬</span> Kirim Balasan ke WA
         </a>
 
-        <button class="btn-action" style="width: 88%; max-width: 320px; background: rgba(255,255,255,0.92); font-size: 0.95rem; padding: 9px 18px;" onclick="goToSlide(1)">
+        <button class="btn-action" style="width: 88%; max-width: 320px; background: rgba(255,255,255,0.92); font-size: 0.95rem; padding: 9px 18px;" onclick="restartExperience()">
           🔄 Ulangi Dari Awal
         </button>
       </div>
@@ -1032,17 +1032,22 @@
       }
     }
 
+    // Inisialisasi awal tombol dalam kondisi ON
+    if (bgmIcon) bgmIcon.innerText = '🔊';
+    if (bgmToggleBtn) bgmToggleBtn.classList.add('playing');
+
     // Memutar BGM secara otomatis saat halaman dibuka
     function tryPlayBgm() {
       if (bgmAudio && !isBgmManuallyPaused) {
-        bgmAudio.volume = 0.55;
+        bgmAudio.volume = 0.8;
         const playPromise = bgmAudio.play();
         if (playPromise !== undefined) {
           playPromise.then(() => {
             updateBgmIconState(true);
           }).catch(() => {
             // Kebijakan browser mengharuskan gestur interaksi pertama
-            updateBgmIconState(false);
+            // Ikon tetap diset standby aktif agar saat interaksi pertama langsung on
+            if (bgmIcon) bgmIcon.innerText = '🔊';
           });
         }
       }
@@ -1053,6 +1058,7 @@
       if (!hasUserInteracted) {
         hasUserInteracted = true;
         if (bgmAudio && bgmAudio.paused && !isBgmManuallyPaused) {
+          bgmAudio.volume = 0.8;
           bgmAudio.play()
             .then(() => updateBgmIconState(true))
             .catch(e => console.warn('BGM play on interaction:', e));
@@ -1083,6 +1089,39 @@
     /* ==========================================================
        3. LOGIKA SLIDE & TIUP LILIN + ASAP
        ========================================================== */
+    function stopDriveVideo() {
+      const iframe = document.getElementById('driveVideoPlayer');
+      if (iframe) {
+        const currentSrc = iframe.src;
+        // Me-reset src untuk menghentikan pemutaran audio/video iframe secara instan
+        iframe.src = '';
+        setTimeout(() => {
+          iframe.src = currentSrc;
+        }, 150);
+      }
+    }
+
+    function restartExperience() {
+      // 1. Hentikan pemutaran video Google Drive
+      stopDriveVideo();
+
+      // 2. Kembalikan api lilin & bersihkan asap
+      const flame = document.getElementById('candleFlame');
+      const smoke = document.getElementById('smokeEffect');
+      if (flame) flame.classList.remove('off');
+      if (smoke) smoke.classList.remove('active');
+
+      // 3. Putar kembali BGM jika tidak dimatikan secara manual
+      if (bgmAudio && !isBgmManuallyPaused) {
+        bgmAudio.play()
+          .then(() => updateBgmIconState(true))
+          .catch(err => console.warn('Resume BGM error:', err));
+      }
+
+      // 4. Kembali ke slide 1
+      goToSlide(1);
+    }
+
     function goToSlide(slideNum) {
       document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
       const target = document.getElementById(`slide-${slideNum}`);
@@ -1343,24 +1382,40 @@
         if (webAudioCtx.state === 'suspended') {
           webAudioCtx.resume();
         }
-        const osc = webAudioCtx.createOscillator();
-        const gain = webAudioCtx.createGain();
 
-        osc.type = 'sawtooth';
         const now = webAudioCtx.currentTime;
-        osc.frequency.setValueAtTime(320, now);
-        osc.frequency.exponentialRampToValueAtTime(460, now + 0.12);
-        osc.frequency.exponentialRampToValueAtTime(430, now + 0.28);
 
-        gain.gain.setValueAtTime(0.01, now);
-        gain.gain.linearRampToValueAtTime(0.18, now + 0.04);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+        // Master Gain dengan volume diperbesar secara optimal (0.65)
+        const masterGain = webAudioCtx.createGain();
+        masterGain.gain.setValueAtTime(0.05, now);
+        masterGain.gain.linearRampToValueAtTime(0.65, now + 0.04);
+        masterGain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+        masterGain.connect(webAudioCtx.destination);
 
-        osc.connect(gain);
-        gain.connect(webAudioCtx.destination);
+        // Osilator 1: Nada Utama (Sawtooth yang nyaring)
+        const osc1 = webAudioCtx.createOscillator();
+        osc1.type = 'sawtooth';
+        osc1.frequency.setValueAtTime(340, now);
+        osc1.frequency.exponentialRampToValueAtTime(520, now + 0.12);
+        osc1.frequency.exponentialRampToValueAtTime(480, now + 0.35);
+        osc1.connect(masterGain);
 
-        osc.start(now);
-        osc.stop(now + 0.33);
+        // Osilator 2: Harmoni Oktaf (Membentuk suara tiupan terompet pesta yang tebal)
+        const osc2 = webAudioCtx.createOscillator();
+        osc2.type = 'square';
+        osc2.frequency.setValueAtTime(680, now);
+        osc2.frequency.exponentialRampToValueAtTime(1040, now + 0.12);
+        osc2.frequency.exponentialRampToValueAtTime(960, now + 0.35);
+
+        const subGain = webAudioCtx.createGain();
+        subGain.gain.value = 0.35;
+        osc2.connect(subGain);
+        subGain.connect(masterGain);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + 0.38);
+        osc2.stop(now + 0.38);
       } catch (err) {
         console.warn('Audio feedback error', err);
       }
