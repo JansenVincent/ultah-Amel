@@ -1012,7 +1012,7 @@
     }, { passive: true });
 
     /* ==========================================================
-       2. PENGATURAN AUDIO (BGM & LAGU SPESIAL GOOGLE DRIVE)
+       2. PENGATURAN AUDIO (BGM & LAGU SPESIAL GOOGLE DRIVE/GITHUB)
        ========================================================== */
     const bgmAudio = document.getElementById('bgmAudio');
     const specialAudio = document.getElementById('specialSongAudio');
@@ -1020,6 +1020,17 @@
     const bgmIcon = document.getElementById('bgmIcon');
     let hasUserInteracted = false;
     let isBgmManuallyPaused = false;
+    let currentSlide = 1;
+    let isSpecialSongPlaying = false;
+
+    // Menentukan apakah BGM boleh berputar pada kondisi saat ini
+    function shouldBgmPlay() {
+      if (!bgmAudio) return false;
+      if (isBgmManuallyPaused) return false;
+      if (isSpecialSongPlaying) return false; // Jeda saat lagu ultah sedang aktif
+      if (currentSlide === 4) return false;  // Jeda saat berada di slide video penutup
+      return true;
+    }
 
     function updateBgmIconState(isPlaying) {
       if (bgmIcon) bgmIcon.innerText = isPlaying ? '🔊' : '🔇';
@@ -1038,24 +1049,22 @@
 
     // Memutar BGM secara otomatis sesegera mungkin saat halaman dibuka
     function tryPlayBgm() {
-      if (bgmAudio && !isBgmManuallyPaused) {
+      if (shouldBgmPlay()) {
         bgmAudio.volume = 0.8;
         const playPromise = bgmAudio.play();
         if (playPromise !== undefined) {
           playPromise.then(() => {
             updateBgmIconState(true);
           }).catch(() => {
-            // Jika browser memblokir unmuted autoplay tanpa gestur,
-            // ikon tetap bersuara dan akan langsung diputar di tap/sentuhan pertama
             if (bgmIcon) bgmIcon.innerText = '🔊';
           });
         }
       }
     }
 
-    // Memaksa BGM langsung berputar begitu ada interaksi apapun di layar
+    // Memaksa BGM berputar begitu ada interaksi jika syarat pemutaran terpenuhi
     function forceStartBgm() {
-      if (bgmAudio && bgmAudio.paused && !isBgmManuallyPaused) {
+      if (shouldBgmPlay() && bgmAudio.paused) {
         bgmAudio.volume = 0.8;
         bgmAudio.play()
           .then(() => updateBgmIconState(true))
@@ -1068,9 +1077,11 @@
       hasUserInteracted = true;
       if (bgmAudio.paused) {
         isBgmManuallyPaused = false;
-        bgmAudio.play()
-          .then(() => updateBgmIconState(true))
-          .catch(e => console.warn(e));
+        if (shouldBgmPlay()) {
+          bgmAudio.play()
+            .then(() => updateBgmIconState(true))
+            .catch(e => console.warn(e));
+        }
       } else {
         isBgmManuallyPaused = true;
         bgmAudio.pause();
@@ -1083,7 +1094,7 @@
     window.addEventListener('DOMContentLoaded', tryPlayBgm);
     window.addEventListener('load', tryPlayBgm);
 
-    // Tangkap segala jenis interaksi sentuhan atau klik pertama di layar HP / Desktop
+    // Tangkap interaksi sentuhan atau klik pertama
     const triggerEvents = ['pointerdown', 'touchstart', 'touchend', 'click', 'keydown', 'scroll'];
     triggerEvents.forEach(evtName => {
       window.addEventListener(evtName, forceStartBgm, { passive: true });
@@ -1097,7 +1108,6 @@
       const iframe = document.getElementById('driveVideoPlayer');
       if (iframe) {
         const currentSrc = iframe.src;
-        // Me-reset src untuk menghentikan pemutaran audio/video iframe secara instan
         iframe.src = '';
         setTimeout(() => {
           iframe.src = currentSrc;
@@ -1115,18 +1125,19 @@
       if (flame) flame.classList.remove('off');
       if (smoke) smoke.classList.remove('active');
 
-      // 3. Putar kembali BGM jika tidak dimatikan secara manual
-      if (bgmAudio && !isBgmManuallyPaused) {
+      // 3. Kembali ke slide 1
+      goToSlide(1);
+
+      // 4. Putar kembali BGM jika tidak dimatikan secara manual
+      if (shouldBgmPlay()) {
         bgmAudio.play()
           .then(() => updateBgmIconState(true))
           .catch(err => console.warn('Resume BGM error:', err));
       }
-
-      // 4. Kembali ke slide 1
-      goToSlide(1);
     }
 
     function goToSlide(slideNum) {
+      currentSlide = slideNum;
       document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
       const target = document.getElementById(`slide-${slideNum}`);
       if (target) {
@@ -1134,7 +1145,7 @@
         if (slideNum === 2) {
           triggerCelebrationConfetti();
         }
-        // Di slide 4 (video penutup full-screen), jeda BGM agar audio video terdengar jelas
+        // Di slide 4 (video penutup full-screen), jeda BGM secara mutlak
         if (slideNum === 4 && bgmAudio) {
           bgmAudio.pause();
           updateBgmIconState(false);
@@ -1202,7 +1213,10 @@
       }
 
       if (type === 'music') {
-        // Hentikan lagu spesial GitHub dan jalankan kembali BGM
+        // Matikan flag lagu ultah
+        isSpecialSongPlaying = false;
+
+        // Hentikan lagu spesial GitHub
         if (specialAudio) {
           specialAudio.pause();
           specialAudio.currentTime = 0;
@@ -1211,7 +1225,8 @@
         const disc = document.getElementById('vinylDisc');
         if (disc) disc.classList.remove('spinning');
 
-        if (bgmAudio && !isBgmManuallyPaused) {
+        // Putar kembali BGM sekarang setelah modal lagu-ultah di-close
+        if (shouldBgmPlay()) {
           bgmAudio.play()
             .then(() => updateBgmIconState(true))
             .catch(e => console.warn(e));
@@ -1222,7 +1237,8 @@
 
     // Fungsi Saat User Menekan "Putar Lagu Ultah"
     function playBirthdaySong() {
-      // 1. Jeda Background Music
+      // 1. Set status lagu ultah aktif dan pause BGM
+      isSpecialSongPlaying = true;
       if (bgmAudio) {
         bgmAudio.pause();
         updateBgmIconState(false);
